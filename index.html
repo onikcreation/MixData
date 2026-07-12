@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission 2026 — বোর্ড ডাটা সামারি</title>
+
+<script>
+  const CONFIG = {
+    CSV_URL: "https://docs.google.com/spreadsheets/d/1sGCJFSykLxhnDT_bj91esMpkqt9IFzTO1-SaW3e7XXo/gviz/tq?tqx=out:csv&gid=1817148032",
+    REFRESH_MINUTES: 5
+  };
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" onerror="document.write('<script src=https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js><\/script>')"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1B2A4A;
+    --ink-soft:#3A4A6B;
+    --paper:#F7F5F0;
+    --panel:#FFFFFF;
+    --gold:#C9A227;
+    --gold-soft:#EFE3B8;
+    --line:#E3DFD3;
+    --good:#1E7A4C;
+    --bad:#B4432E;
+    --ssc:#1B2A4A;
+    --hsc:#8A6FB0;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;}
+
+  .ledger-top{background:var(--ink);color:#fff;padding:34px 24px 26px;position:relative;overflow:hidden;}
+  .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--gold) 0 18px, transparent 18px 26px);}
+  .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(20px,3.2vw,29px);margin:0 0 4px;}
+  .ledger-top .sub{color:var(--gold-soft);font-size:13.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--good);display:inline-block;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:26px;}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 14px;position:relative;}
+  .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:26px;font-weight:700;color:var(--ink);}
+  .kpi .num small{font-size:13px;font-weight:500;color:var(--ink-soft);}
+  .kpi::before{content:"";position:absolute;top:0;left:18px;right:18px;height:3px;background:var(--gold);border-radius:0 0 3px 3px;}
+
+  .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
+  @media (max-width:820px){ .panels{grid-template-columns:1fr;} }
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
+  .card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
+  canvas{max-width:100%;}
+
+  .legend-row{display:flex;gap:16px;font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend-row span{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:10px;height:10px;border-radius:2px;display:inline-block;}
+
+  .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
+  .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;}
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
+  thead th{text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);padding:8px 8px;border-bottom:2px solid var(--ink);white-space:nowrap;}
+  thead th.left{text-align:left;}
+  tbody td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:center;}
+  tbody td.left{text-align:left;font-weight:600;}
+  tbody tr:hover{background:#FAF8F2;}
+  tr.total-row td{font-weight:700;background:#FBF3E4;border-top:2px solid var(--gold);}
+  .bar-cell{display:flex;align-items:center;gap:6px;justify-content:center;}
+  .mini-bar{width:52px;height:6px;background:var(--line);border-radius:3px;overflow:hidden;}
+  .mini-bar i{display:block;height:100%;background:var(--ink);}
+  .mini-bar.hsc i{background:var(--hsc);}
+  .pct{font-size:11.5px;color:var(--ink-soft);min-width:32px;text-align:right;}
+
+  .footer-note{text-align:center;color:var(--ink-soft);font-size:12px;margin-top:22px;}
+  .error-box{background:#F7E5E1;border:1px solid var(--bad);color:var(--bad);padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
+  .state{padding:50px 20px;text-align:center;color:var(--ink-soft);font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="ledger-top">
+  <h1>Admission 2026 — বোর্ড ডাটা সিঙ্ক্রোনাইজেশন সামারি</h1>
+  <div class="sub"><span class="dot"></span> Live — Google Sheet থেকে সরাসরি সংযুক্ত · <span id="lastUpdated">লোড হচ্ছে…</span></div>
+</div>
+
+<div class="wrap">
+  <div id="errorArea"></div>
+  <div id="kpiRow" class="kpi-row"></div>
+
+  <div class="panels">
+    <div class="card">
+      <h2>প্রোগ্রামভিত্তিক বোর্ড ডাটা সংগ্রহের হার</h2>
+      <canvas id="barChart" height="230"></canvas>
+      <div class="legend-row">
+        <span><i class="sw" style="background:var(--ssc)"></i> SSC সংগৃহীত %</span>
+        <span><i class="sw" style="background:var(--hsc)"></i> HSC সংগৃহীত %</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>সামগ্রিক অবস্থা (Yes বনাম No)</h2>
+      <canvas id="overallChart" height="230"></canvas>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <h2>প্রোগ্রামভিত্তিক বিস্তারিত তালিকা</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="left">Sl</th>
+            <th class="left">Program</th>
+            <th>মোট আবেদন</th>
+            <th>SSC সংগ্রহ</th>
+            <th>SSC সিঙ্ক</th>
+            <th>HSC সংগ্রহ</th>
+            <th>HSC সিঙ্ক</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-note">প্রতি <span id="refreshMin"></span> মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>
+</div>
+
+<script>
+document.getElementById("refreshMin").textContent = CONFIG.REFRESH_MINUTES;
+let barChartInst = null, overallChartInst = null;
+
+function showError(msg){
+  document.getElementById("errorArea").innerHTML = `<div class="error-box">⚠ ${msg}</div>`;
+}
+function num(v){
+  if(v === undefined || v === null) return 0;
+  const n = parseFloat(String(v).replace(/,/g,"").trim());
+  return isNaN(n) ? 0 : n;
+}
+function pct(a,b){ return b > 0 ? Math.round((a/b)*1000)/10 : 0; }
+
+async function loadData(){
+  try{
+    const res = await fetch(CONFIG.CSV_URL + (CONFIG.CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const csvText = await res.text();
+    const grid = Papa.parse(csvText, { header:false, skipEmptyLines:false }).data;
+    parseAndRender(grid);
+    document.getElementById("errorArea").innerHTML = "";
+    document.getElementById("lastUpdated").textContent = "সবশেষ আপডেট: " + new Date().toLocaleString("bn-BD");
+  }catch(err){
+    showError("ডাটা লোড করা যায়নি। শীটের শেয়ারিং/পাবলিশ সেটিংস যাচাই করুন। (" + err.message + ")");
+  }
+}
+
+function parseAndRender(grid){
+  let slRow = -1, slCol = -1;
+  for(let r=0; r<grid.length; r++){
+    for(let c=0; c<grid[r].length; c++){
+      const v = (grid[r][c] || "").toString().trim().toLowerCase();
+      if(v === "sl" || v === "sl."){ slRow = r; slCol = c; break; }
+    }
+    if(slRow !== -1) break;
+  }
+  if(slRow === -1){ showError("শীটের হেডার কাঠামো চেনা যায়নি (Sl কলাম পাওয়া যায়নি)।"); return; }
+
+  const programCol = slCol + 1;
+  const totalCol = slCol + 2;
+  const sscYesCol = slCol + 3, sscNoCol = slCol + 4, sscSyncYesCol = slCol + 5, sscSyncNoCol = slCol + 6;
+  const hscYesCol = slCol + 7, hscNoCol = slCol + 8, hscSyncYesCol = slCol + 9, hscSyncNoCol = slCol + 10;
+  const totalLabel = (grid[slRow][totalCol] || "মোট আবেদন").toString().trim();
+
+  const rows = [];
+  let totals = null;
+  let blankStreak = 0;
+
+  for(let r = slRow + 1; r < grid.length; r++){
+    const row = grid[r] || [];
+    const programText = (row[programCol] || "").toString().trim();
+    const slText = (row[slCol] || "").toString().trim();
+
+    if(/total/i.test(programText) || /total/i.test(slText)){
+      totals = {
+        total: num(row[totalCol]),
+        sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
+        sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
+        hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
+        hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
+      };
+      break;
+    }
+    if(/^\d+$/.test(slText) && programText){
+      rows.push({
+        sl: slText, program: programText, total: num(row[totalCol]),
+        sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
+        sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
+        hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
+        hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
+      });
+      blankStreak = 0;
+    } else {
+      blankStreak++;
+      if(blankStreak > 5) break;
+    }
+  }
+
+  if(!rows.length){ showError("কোনো প্রোগ্রামের ডাটা পাওয়া যায়নি।"); return; }
+  if(!totals){
+    totals = rows.reduce((a,r) => ({
+      total:a.total+r.total, sscYes:a.sscYes+r.sscYes, sscNo:a.sscNo+r.sscNo,
+      sscSyncYes:a.sscSyncYes+r.sscSyncYes, sscSyncNo:a.sscSyncNo+r.sscSyncNo,
+      hscYes:a.hscYes+r.hscYes, hscNo:a.hscNo+r.hscNo,
+      hscSyncYes:a.hscSyncYes+r.hscSyncYes, hscSyncNo:a.hscSyncNo+r.hscSyncNo
+    }), {total:0,sscYes:0,sscNo:0,sscSyncYes:0,sscSyncNo:0,hscYes:0,hscNo:0,hscSyncYes:0,hscSyncNo:0});
+  }
+
+  renderKPIs(totals, rows.length, totalLabel);
+
+  if(typeof Chart === "undefined"){
+    document.getElementById("barChart").outerHTML = '<div class="state">চার্ট লাইব্রেরি লোড হয়নি (সম্ভবত Ad-blocker এটি ব্লক করেছে)। নিচের টেবিলে সম্পূর্ণ ডাটা দেখুন।</div>';
+    document.getElementById("overallChart").outerHTML = '<div class="state">চার্ট লাইব্রেরি লোড হয়নি।</div>';
+  } else {
+    try{ renderBarChart(rows); }catch(e){ console.error(e); }
+    try{ renderOverallChart(totals); }catch(e){ console.error(e); }
+  }
+
+  renderTable(rows, totals);
+}
+
+function renderKPIs(t, programCount, totalLabel){
+  const sscPct = pct(t.sscYes, t.total);
+  const hscPct = pct(t.hscYes, t.total);
+  const sscSyncPct = pct(t.sscSyncYes, t.total);
+  const hscSyncPct = pct(t.hscSyncYes, t.total);
+  const kpis = [
+    {label: totalLabel, value: t.total.toLocaleString("en-US")},
+    {label:"মোট প্রোগ্রাম", value: programCount},
+    {label:"SSC ডাটা সংগ্রহ", value: sscPct + "%"},
+    {label:"HSC ডাটা সংগ্রহ", value: hscPct + "%"},
+    {label:"SSC সিঙ্ক্রোনাইজড", value: sscSyncPct + "%"},
+    {label:"HSC সিঙ্ক্রোনাইজড", value: hscSyncPct + "%"}
+  ];
+  document.getElementById("kpiRow").innerHTML = kpis.map(k =>
+    `<div class="kpi"><div class="eyebrow">${k.label}</div><div class="num">${k.value}</div></div>`
+  ).join("");
+}
+
+function renderBarChart(rows){
+  const labels = rows.map(r => r.program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)"));
+  const sscPcts = rows.map(r => pct(r.sscYes, r.total));
+  const hscPcts = rows.map(r => pct(r.hscYes, r.total));
+
+  if(barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(document.getElementById("barChart"), {
+    type:"bar",
+    data:{ labels, datasets:[
+      { label:"SSC", data: sscPcts, backgroundColor:"#1B2A4A", borderRadius:3, maxBarThickness:18 },
+      { label:"HSC", data: hscPcts, backgroundColor:"#8A6FB0", borderRadius:3, maxBarThickness:18 }
+    ]},
+    options:{
+      indexAxis:"y",
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: (ctx) => ctx.dataset.label + ": " + ctx.parsed.x + "%" } } },
+      scales:{ x:{ beginAtZero:true, max:100, grid:{color:"#EEE9DD"}, ticks:{ callback:(v)=>v+"%" } }, y:{ grid:{display:false} } }
+    }
+  });
+}
+
+function renderOverallChart(t){
+  const labels = ["SSC সংগ্রহ", "HSC সংগ্রহ", "SSC সিঙ্ক", "HSC সিঙ্ক"];
+  const yes = [t.sscYes, t.hscYes, t.sscSyncYes, t.hscSyncYes];
+  const no = [t.sscNo, t.hscNo, t.sscSyncNo, t.hscSyncNo];
+
+  if(overallChartInst) overallChartInst.destroy();
+  overallChartInst = new Chart(document.getElementById("overallChart"), {
+    type:"bar",
+    data:{ labels, datasets:[
+      { label:"Yes", data: yes, backgroundColor:"#1E7A4C", borderRadius:3, maxBarThickness:26, stack:"s" },
+      { label:"No", data: no, backgroundColor:"#E3DFD3", borderRadius:3, maxBarThickness:26, stack:"s" }
+    ]},
+    options:{
+      plugins:{ legend:{ position:"bottom", labels:{boxWidth:12, font:{size:11.5}} } },
+      scales:{ x:{ stacked:true, grid:{display:false}, ticks:{font:{size:11}} }, y:{ stacked:true, beginAtZero:true, grid:{color:"#EEE9DD"} } }
+    }
+  });
+}
+
+function renderTable(rows, totals){
+  const rowHtml = (label, r, isTotal) => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
+    return `<tr${isTotal ? ' class="total-row"' : ''}>
+      <td class="left">${isTotal ? '' : r.sl}</td>
+      <td class="left">${label}</td>
+      <td>${r.total.toLocaleString("en-US")}</td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscP}%"></i></div><span class="pct">${sscP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscSyncP}%"></i></div><span class="pct">${sscSyncP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar hsc"><i style="width:${hscP}%"></i></div><span class="pct">${hscP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar hsc"><i style="width:${hscSyncP}%"></i></div><span class="pct">${hscSyncP}%</span></div></td>
+    </tr>`;
+  };
+  let html = rows.map(r => rowHtml(r.program, r, false)).join("");
+  html += rowHtml("সর্বমোট", totals, true);
+  document.getElementById("tableBody").innerHTML = html;
+}
+
+loadData();
+setInterval(loadData, CONFIG.REFRESH_MINUTES * 60 * 1000);
+</script>
+
+</body>
+</html>
