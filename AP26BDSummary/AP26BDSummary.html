@@ -21,13 +21,6 @@
   html,body{margin:0;}
   body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;}
 
-  /* ============ থিম সুইচার বার ============ */
-  .switch-bar{position:sticky;top:0;z-index:50;background:#111;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:"Hind Siliguri",sans-serif;}
-  .switch-bar .hint{font-size:12px;opacity:.7;margin-right:6px;}
-  .switch-bar button{appearance:none;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;padding:7px 14px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;letter-spacing:.2px;transition:.15s;}
-  .switch-bar button:hover{background:rgba(255,255,255,.16);}
-  .switch-bar button.active{background:#fff;color:#111;border-color:#fff;}
-
   .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
   .footer-note{text-align:center;font-size:12px;margin-top:22px;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
@@ -47,7 +40,25 @@
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
   .dot-live{animation:pulse 2s infinite;}
 
-  /* ============ লেআউট (ডাটা-ফরম্যাট) সুইচার বার ============ */
+  /* ============ ফ্লোটিং থিম/প্যালেট কাস্টমাইজার (থিম-নিরপেক্ষ) ============ */
+  .theme-fab{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
+  .theme-panel{position:fixed;right:22px;bottom:84px;width:200px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
+  .theme-panel.open{display:block;}
+  .tp-label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);font-weight:700;margin:0 0 8px;}
+  .tp-label.tp-label-2{margin-top:14px;}
+  .tp-theme-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:12px;}
+  .tp-theme-row:hover{background:var(--line);}
+  .tp-theme-row.active{background:var(--line);font-weight:700;}
+  .tp-swatch{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.15);}
+  .tp-palette-row{display:flex;gap:12px;}
+  .tp-color-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .tp-color-col span{font-size:10px;color:var(--ink-soft);}
+  input[type=color].tp-color-input{width:28px;height:28px;padding:0;border:2px solid var(--line);border-radius:50%;cursor:pointer;background:none;}
+  input[type=color].tp-color-input::-webkit-color-swatch-wrapper{padding:0;border-radius:50%;}
+  input[type=color].tp-color-input::-webkit-color-swatch{border:none;border-radius:50%;}
+  .tp-reset-btn{width:100%;margin-top:12px;padding:7px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer;font-weight:600;}
+  .tp-reset-btn:hover{background:var(--line);}
+
   /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
   .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
 
@@ -123,8 +134,6 @@
   body[data-theme="1"] .card h2,
   body[data-theme="1"] .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
   body[data-theme="1"] .mini-bar{background:var(--line);}
-  body[data-theme="1"] .mini-bar i{background:var(--ink);}
-  body[data-theme="1"] .mini-bar.hsc i{background:var(--hsc);}
   body[data-theme="1"] .pct{color:var(--ink-soft);}
   body[data-theme="1"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
   body[data-theme="1"] tbody td{border-bottom:1px solid var(--line);}
@@ -154,8 +163,6 @@
   body[data-theme="2"] .card h2,
   body[data-theme="2"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
   body[data-theme="2"] .mini-bar{background:var(--line);}
-  body[data-theme="2"] .mini-bar i{background:var(--accent);}
-  body[data-theme="2"] .mini-bar.hsc i{background:var(--accent2);}
   body[data-theme="2"] .pct{color:var(--ink-soft);}
   body[data-theme="2"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
   body[data-theme="2"] tbody td{border-bottom:1px solid var(--line);}
@@ -186,8 +193,6 @@
   body[data-theme="3"] .card h2,
   body[data-theme="3"] .table-card h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:#fff;}
   body[data-theme="3"] .mini-bar{background:var(--line);}
-  body[data-theme="3"] .mini-bar i{background:var(--accent);}
-  body[data-theme="3"] .mini-bar.hsc i{background:var(--accent2);}
   body[data-theme="3"] .pct{color:var(--ink-soft);}
   body[data-theme="3"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
   body[data-theme="3"] tbody td{border-bottom:1px solid var(--line);}
@@ -222,8 +227,6 @@
   body[data-theme="4"] .card h2,
   body[data-theme="4"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
   body[data-theme="4"] .mini-bar{background:rgba(30,27,58,.12);}
-  body[data-theme="4"] .mini-bar i{background:var(--accent);}
-  body[data-theme="4"] .mini-bar.hsc i{background:var(--accent2);}
   body[data-theme="4"] .pct{color:var(--ink-soft);}
   body[data-theme="4"] thead th{color:var(--ink-soft);border-bottom:1px solid rgba(30,27,58,.15);}
   body[data-theme="4"] tbody td{border-bottom:1px solid rgba(30,27,58,.08);}
@@ -254,8 +257,6 @@
   body[data-theme="5"] .card h2,
   body[data-theme="5"] .table-card h2{font-family:"Playfair Display",serif;font-weight:600;font-size:15px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--ink);}
   body[data-theme="5"] .mini-bar{background:var(--line);border-radius:0;}
-  body[data-theme="5"] .mini-bar i{background:var(--accent);}
-  body[data-theme="5"] .mini-bar.hsc i{background:var(--accent2);}
   body[data-theme="5"] .pct{color:var(--ink-soft);}
   body[data-theme="5"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
   body[data-theme="5"] tbody td{border-bottom:1px solid var(--line);}
@@ -267,14 +268,6 @@
 </head>
 <body data-theme="1">
 
-<div class="switch-bar">
-  <span class="hint">রঙ/থিম প্রিভিউ —</span>
-  <button data-theme-btn="1">১. ক্লাসিক লেজার</button>
-  <button data-theme-btn="2">২. মডার্ন মিনিমাল</button>
-  <button data-theme-btn="3">৩. ডার্ক অ্যানালিটিক্স</button>
-  <button data-theme-btn="4">৪. গ্লাসমরফিজম</button>
-  <button data-theme-btn="5">৫. কর্পোরেট এক্সিকিউটিভ</button>
-</div>
 <div class="ledger-top">
   <h1>Admission 2026 — Board Data Synchronization Summary</h1>
   <div class="sub"><span class="dot dot-live"></span> <span id="lastUpdated">Loading…</span></div>
@@ -289,6 +282,19 @@
   <div class="footer-note">প্রতি <span id="refreshMin"></span> মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>
 </div>
 
+<button class="theme-fab" id="themeFab" aria-label="Theme settings" title="Theme settings">🎨</button>
+<div class="theme-panel" id="themePanel">
+  <div class="tp-label">Theme</div>
+  <div id="tpThemeList"></div>
+  <div class="tp-label tp-label-2">Palette</div>
+  <div class="tp-palette-row">
+    <div class="tp-color-col"><input type="color" class="tp-color-input" id="tpPrimary"><span>Primary</span></div>
+    <div class="tp-color-col"><input type="color" class="tp-color-input" id="tpSecondary"><span>Secondary</span></div>
+    <div class="tp-color-col"><input type="color" class="tp-color-input" id="tpBg"><span>BG</span></div>
+  </div>
+  <button class="tp-reset-btn" id="tpReset">↺ Reset Colors</button>
+</div>
+
 <script>
 document.getElementById("refreshMin").textContent = CONFIG.REFRESH_MINUTES;
 let lastRows = null, lastTotals = null;
@@ -300,8 +306,17 @@ const THEME_PALETTE = {
   4: { ssc:"#818CF8", hsc:"#F472B6" },
   5: { ssc:"#1B2A4A", hsc:"#8C1D2B" }
 };
+const THEME_NAMES = {
+  1: "ক্লাসিক লেজার", 2: "মডার্ন মিনিমাল", 3: "ডার্ক অ্যানালিটিক্স", 4: "গ্লাসমরফিজম", 5: "কর্পোরেট এক্সিকিউটিভ"
+};
+const THEME_BG_SWATCH = { 1:"#F7F5F0", 2:"#F8FAFC", 3:"#0B1120", 4:"#EEF2FF", 5:"#F3F4F1" };
+let customColors = { primary:null, secondary:null, bg:null };
 
 function currentTheme(){ return document.body.getAttribute("data-theme"); }
+function getActivePalette(){
+  const base = THEME_PALETTE[currentTheme()];
+  return { ssc: customColors.primary || base.ssc, hsc: customColors.secondary || base.hsc };
+}
 function shortName(program){
   return program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)");
 }
@@ -419,7 +434,7 @@ function renderKPIs(t, programCount, totalLabel){
   ).join("");
 }
 
-function tableCardHtml(rows, totals, heading){
+function tableCardHtml(rows, totals, heading, p){
   const rowHtml = (label, r, isTotal) => {
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
     const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
@@ -427,10 +442,10 @@ function tableCardHtml(rows, totals, heading){
       <td class="left">${isTotal ? '' : r.sl}</td>
       <td class="left">${label}</td>
       <td>${r.total.toLocaleString("en-US")}</td>
-      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscP}%"></i></div><span class="pct">${sscP}%</span></div></td>
-      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscSyncP}%"></i></div><span class="pct">${sscSyncP}%</span></div></td>
-      <td><div class="bar-cell"><div class="mini-bar hsc"><i style="width:${hscP}%"></i></div><span class="pct">${hscP}%</span></div></td>
-      <td><div class="bar-cell"><div class="mini-bar hsc"><i style="width:${hscSyncP}%"></i></div><span class="pct">${hscSyncP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscP}%;background:${p.ssc}"></i></div><span class="pct">${sscP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscSyncP}%;background:${p.ssc}"></i></div><span class="pct">${sscSyncP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${hscP}%;background:${p.hsc}"></i></div><span class="pct">${hscP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${hscSyncP}%;background:${p.hsc}"></i></div><span class="pct">${hscSyncP}%</span></div></td>
     </tr>`;
   };
   let bodyHtml = rows.map(r => rowHtml(r.program, r, false)).join("");
@@ -520,8 +535,8 @@ function scorecardHtml(rows, p){
 }
 
 function renderProgramSection(rows, totals){
-  const p = THEME_PALETTE[currentTheme()];
-  const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা")
+  const p = getActivePalette();
+  const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা", p)
     + cardGridHtml(rows, p)
     + compactListHtml(rows, p)
     + raceBarHtml(rows, p)
@@ -529,20 +544,94 @@ function renderProgramSection(rows, totals){
   document.getElementById("programSection").innerHTML = html;
 }
 
-/* ============ থিম সুইচার লজিক ============ */
+/* ============ থিম + প্যালেট কাস্টমাইজার (ফ্লোটিং প্যানেল) ============ */
+const themeFab = document.getElementById("themeFab");
+const themePanel = document.getElementById("themePanel");
+const tpThemeList = document.getElementById("tpThemeList");
+const tpPrimary = document.getElementById("tpPrimary");
+const tpSecondary = document.getElementById("tpSecondary");
+const tpBg = document.getElementById("tpBg");
+
+tpThemeList.innerHTML = Object.keys(THEME_NAMES).map(n =>
+  `<div class="tp-theme-row" data-theme-pick="${n}"><span class="tp-swatch" style="background:${THEME_PALETTE[n].ssc}"></span>${THEME_NAMES[n]}</div>`
+).join("");
+
+function refreshThemeRowHighlight(){
+  const n = currentTheme();
+  document.querySelectorAll("[data-theme-pick]").forEach(row => {
+    row.classList.toggle("active", row.getAttribute("data-theme-pick") === String(n));
+  });
+}
+
+function refreshColorInputs(){
+  const base = THEME_PALETTE[currentTheme()];
+  tpPrimary.value = customColors.primary || base.ssc;
+  tpSecondary.value = customColors.secondary || base.hsc;
+  tpBg.value = customColors.bg || THEME_BG_SWATCH[currentTheme()];
+}
+
 function setTheme(n){
   document.body.setAttribute("data-theme", n);
-  document.querySelectorAll("[data-theme-btn]").forEach(b => {
-    b.classList.toggle("active", b.getAttribute("data-theme-btn") === String(n));
-  });
   localStorage.setItem("ap26bd_theme_preview", n);
+  customColors = { primary:null, secondary:null, bg:null };
+  localStorage.removeItem("ap26bd_custom_colors");
+  document.body.style.background = "";
+  refreshThemeRowHighlight();
+  refreshColorInputs();
   renderAll();
 }
-document.querySelectorAll("[data-theme-btn]").forEach(btn => {
-  btn.addEventListener("click", () => setTheme(btn.getAttribute("data-theme-btn")));
+
+document.querySelectorAll("[data-theme-pick]").forEach(row => {
+  row.addEventListener("click", () => setTheme(row.getAttribute("data-theme-pick")));
 });
 
-setTheme(localStorage.getItem("ap26bd_theme_preview") || "1");
+function saveCustomColors(){
+  localStorage.setItem("ap26bd_custom_colors", JSON.stringify(customColors));
+}
+
+tpPrimary.addEventListener("input", () => {
+  customColors.primary = tpPrimary.value;
+  saveCustomColors();
+  renderAll();
+});
+tpSecondary.addEventListener("input", () => {
+  customColors.secondary = tpSecondary.value;
+  saveCustomColors();
+  renderAll();
+});
+tpBg.addEventListener("input", () => {
+  customColors.bg = tpBg.value;
+  document.body.style.background = tpBg.value;
+  saveCustomColors();
+});
+
+document.getElementById("tpReset").addEventListener("click", () => {
+  customColors = { primary:null, secondary:null, bg:null };
+  localStorage.removeItem("ap26bd_custom_colors");
+  document.body.style.background = "";
+  refreshColorInputs();
+  renderAll();
+});
+
+themeFab.addEventListener("click", (e) => {
+  e.stopPropagation();
+  themePanel.classList.toggle("open");
+});
+document.addEventListener("click", (e) => {
+  if(!themePanel.contains(e.target) && e.target !== themeFab){
+    themePanel.classList.remove("open");
+  }
+});
+
+const savedTheme = localStorage.getItem("ap26bd_theme_preview") || "1";
+document.body.setAttribute("data-theme", savedTheme);
+try{
+  const savedColors = JSON.parse(localStorage.getItem("ap26bd_custom_colors") || "null");
+  if(savedColors) customColors = savedColors;
+}catch(e){}
+if(customColors.bg) document.body.style.background = customColors.bg;
+refreshThemeRowHighlight();
+refreshColorInputs();
 
 loadData();
 setInterval(loadData, CONFIG.REFRESH_MINUTES * 60 * 1000);
