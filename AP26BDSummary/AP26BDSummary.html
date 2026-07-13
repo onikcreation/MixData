@@ -61,6 +61,10 @@
 
   /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
   .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
+  #programSection > .card,
+  #programSection > .table-card{margin-bottom:18px;}
+  #programSection > .card:last-child,
+  #programSection > .table-card:last-child{margin-bottom:0;}
 
   /* কার্ড গ্রিড */
   .prog-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
@@ -76,19 +80,6 @@
   .prog-ring-hole b{font-size:11.5px;color:var(--ink);}
   .prog-ring-hole span{font-size:8.5px;color:var(--ink-soft);text-transform:uppercase;}
 
-  /* কমপ্যাক্ট লিস্ট */
-  .compact-list{display:flex;flex-direction:column;}
-  .compact-row{display:grid;grid-template-columns:2fr auto 1fr auto;align-items:center;gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);}
-  .compact-row:last-child{border-bottom:none;}
-  .compact-left{display:flex;align-items:baseline;gap:8px;overflow:hidden;}
-  .compact-sl{font-size:10.5px;color:var(--ink-soft);flex-shrink:0;}
-  .compact-name{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .compact-total{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;}
-  .compact-track{display:flex;flex-direction:column;gap:3px;min-width:90px;}
-  .compact-bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden;}
-  .compact-bar i{display:block;height:100%;}
-  .compact-pcts{font-size:11px;color:var(--ink-soft);white-space:nowrap;}
-
   /* রেস-বার তুলনা */
   .race-group{padding:12px 0;border-bottom:1px solid var(--line);}
   .race-group:last-child{border-bottom:none;}
@@ -100,15 +91,6 @@
   .race-track{height:9px;border-radius:5px;background:var(--line);overflow:hidden;}
   .race-track i{display:block;height:100%;border-radius:5px;}
   .race-pct{font-size:11px;color:var(--ink-soft);text-align:right;}
-
-  /* স্কোরকার্ড টাইল */
-  .score-tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
-  .score-tile{background:var(--panel);border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:14px;}
-  .score-tile-sl{font-size:10px;color:var(--ink-soft);margin-bottom:4px;}
-  .score-tile-big{font-size:24px;font-weight:800;color:var(--ink);line-height:1.1;}
-  .score-tile-name{font-size:11.5px;color:var(--ink-soft);margin:4px 0 10px;line-height:1.3;min-height:28px;}
-  .score-tile-pills{display:flex;gap:6px;flex-wrap:wrap;}
-  .pill{font-size:10.5px;font-weight:700;color:#fff;padding:3px 8px;border-radius:20px;}
 
   /* =========================================================
      থিম ১ — ক্লাসিক লেজার (আগের ডিজাইন)
@@ -490,22 +472,6 @@ function cardGridHtml(rows, p){
   return `<div class="card"><h2>প্রোগ্রামভিত্তিক কার্ড ভিউ (রিং প্রগ্রেস)</h2><div class="prog-card-grid">${cards}</div></div>`;
 }
 
-function compactListHtml(rows, p){
-  const items = rows.map(r => {
-    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
-    return `<div class="compact-row">
-      <div class="compact-left"><span class="compact-sl">${r.sl}</span><span class="compact-name">${shortName(r.program)}</span></div>
-      <div class="compact-total">${r.total.toLocaleString("en-US")}</div>
-      <div class="compact-track">
-        <div class="compact-bar"><i style="width:${sscP}%;background:${p.ssc}"></i></div>
-        <div class="compact-bar"><i style="width:${hscP}%;background:${p.hsc}"></i></div>
-      </div>
-      <div class="compact-pcts">SSC ${sscP}% · HSC ${hscP}%</div>
-    </div>`;
-  }).join("");
-  return `<div class="card"><h2>কমপ্যাক্ট লিস্ট ভিউ</h2><div class="compact-list">${items}</div></div>`;
-}
-
 function raceBarHtml(rows, p){
   const groups = rows.map(r => {
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
@@ -518,29 +484,11 @@ function raceBarHtml(rows, p){
   return `<div class="card"><h2>SSC বনাম HSC রেস-বার তুলনা</h2>${groups}</div>`;
 }
 
-function scorecardHtml(rows, p){
-  const tiles = rows.map(r => {
-    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
-    return `<div class="score-tile">
-      <div class="score-tile-sl">Sl ${r.sl}</div>
-      <div class="score-tile-big">${r.total.toLocaleString("en-US")}</div>
-      <div class="score-tile-name">${shortName(r.program)}</div>
-      <div class="score-tile-pills">
-        <span class="pill" style="background:${p.ssc}">SSC ${sscP}%</span>
-        <span class="pill" style="background:${p.hsc}">HSC ${hscP}%</span>
-      </div>
-    </div>`;
-  }).join("");
-  return `<div class="card"><h2>স্কোরকার্ড টাইল ভিউ</h2><div class="score-tile-grid">${tiles}</div></div>`;
-}
-
 function renderProgramSection(rows, totals){
   const p = getActivePalette();
   const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা", p)
     + cardGridHtml(rows, p)
-    + compactListHtml(rows, p)
-    + raceBarHtml(rows, p)
-    + scorecardHtml(rows, p);
+    + raceBarHtml(rows, p);
   document.getElementById("programSection").innerHTML = html;
 }
 
