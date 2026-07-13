@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission 2026 — বোর্ড ডাটা সামারি (৫টি ডিজাইন প্রিভিউ)</title>
+
+<script>
+  const CONFIG = {
+    CSV_URL: "https://docs.google.com/spreadsheets/d/1sGCJFSykLxhnDT_bj91esMpkqt9IFzTO1-SaW3e7XXo/gviz/tq?tqx=out:csv&gid=1817148032",
+    REFRESH_MINUTES: 5
+  };
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" onerror="document.write('<script src=https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js><\/script>')"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;700&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;}
+
+  /* ============ থিম সুইচার বার ============ */
+  .switch-bar{position:sticky;top:0;z-index:50;background:#111;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:"Hind Siliguri",sans-serif;}
+  .switch-bar .hint{font-size:12px;opacity:.7;margin-right:6px;}
+  .switch-bar button{appearance:none;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;padding:7px 14px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;letter-spacing:.2px;transition:.15s;}
+  .switch-bar button:hover{background:rgba(255,255,255,.16);}
+  .switch-bar button.active{background:#fff;color:#111;border-color:#fff;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+  canvas{max-width:100%;}
+  .footer-note{text-align:center;font-size:12px;margin-top:22px;}
+  .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
+  .state{padding:50px 20px;text-align:center;font-size:13px;}
+  .legend-row{display:flex;gap:16px;font-size:12px;margin-top:10px;}
+  .legend-row span{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .bar-cell{display:flex;align-items:center;gap:6px;justify-content:center;}
+  .mini-bar{width:52px;height:6px;border-radius:3px;overflow:hidden;}
+  .mini-bar i{display:block;height:100%;}
+  .pct{font-size:11.5px;min-width:32px;text-align:right;}
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
+  thead th{text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:8px 8px;white-space:nowrap;}
+  thead th.left{text-align:left;}
+  tbody td{padding:9px 8px;text-align:center;}
+  tbody td.left{text-align:left;font-weight:600;}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .dot-live{animation:pulse 2s infinite;}
+
+  /* ============ লেআউট (ডাটা-ফরম্যাট) সুইচার বার ============ */
+  .layout-bar{background:#2B2B2B;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .layout-bar .hint{font-size:12px;opacity:.7;margin-right:6px;}
+  .layout-bar button{appearance:none;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;padding:7px 14px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;letter-spacing:.2px;transition:.15s;}
+  .layout-bar button:hover{background:rgba(255,255,255,.16);}
+  .layout-bar button.active{background:#F2C744;color:#2B2B2B;border-color:#F2C744;}
+
+  /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
+  .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
+
+  /* কার্ড গ্রিড */
+  .prog-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+  .prog-card{background:var(--panel);border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:14px;text-align:center;}
+  .prog-card-head{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;}
+  .prog-card-sl{font-size:10.5px;color:var(--ink-soft);}
+  .prog-card-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .prog-card-total{font-size:11px;color:var(--ink-soft);margin-bottom:10px;}
+  .prog-card-total b{font-size:15px;color:var(--ink);display:block;}
+  .prog-ring-row{display:flex;justify-content:center;gap:10px;}
+  .prog-ring{width:58px;height:58px;border-radius:50%;position:relative;}
+  .prog-ring-hole{position:absolute;inset:6px;background:var(--panel);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .prog-ring-hole b{font-size:11.5px;color:var(--ink);}
+  .prog-ring-hole span{font-size:8.5px;color:var(--ink-soft);text-transform:uppercase;}
+
+  /* কমপ্যাক্ট লিস্ট */
+  .compact-list{display:flex;flex-direction:column;}
+  .compact-row{display:grid;grid-template-columns:2fr auto 1fr auto;align-items:center;gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);}
+  .compact-row:last-child{border-bottom:none;}
+  .compact-left{display:flex;align-items:baseline;gap:8px;overflow:hidden;}
+  .compact-sl{font-size:10.5px;color:var(--ink-soft);flex-shrink:0;}
+  .compact-name{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .compact-total{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;}
+  .compact-track{display:flex;flex-direction:column;gap:3px;min-width:90px;}
+  .compact-bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden;}
+  .compact-bar i{display:block;height:100%;}
+  .compact-pcts{font-size:11px;color:var(--ink-soft);white-space:nowrap;}
+
+  /* রেস-বার তুলনা */
+  .race-group{padding:12px 0;border-bottom:1px solid var(--line);}
+  .race-group:last-child{border-bottom:none;}
+  .race-title{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+  .race-title .race-total{font-size:11px;font-weight:500;color:var(--ink-soft);}
+  .race-row{display:grid;grid-template-columns:36px 1fr 40px;align-items:center;gap:8px;margin-bottom:5px;}
+  .race-row:last-child{margin-bottom:0;}
+  .race-label{font-size:10.5px;color:var(--ink-soft);font-weight:600;}
+  .race-track{height:9px;border-radius:5px;background:var(--line);overflow:hidden;}
+  .race-track i{display:block;height:100%;border-radius:5px;}
+  .race-pct{font-size:11px;color:var(--ink-soft);text-align:right;}
+
+  /* স্কোরকার্ড টাইল */
+  .score-tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .score-tile{background:var(--panel);border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:14px;}
+  .score-tile-sl{font-size:10px;color:var(--ink-soft);margin-bottom:4px;}
+  .score-tile-big{font-size:24px;font-weight:800;color:var(--ink);line-height:1.1;}
+  .score-tile-name{font-size:11.5px;color:var(--ink-soft);margin:4px 0 10px;line-height:1.3;min-height:28px;}
+  .score-tile-pills{display:flex;gap:6px;flex-wrap:wrap;}
+  .pill{font-size:10.5px;font-weight:700;color:#fff;padding:3px 8px;border-radius:20px;}
+
+  /* =========================================================
+     থিম ১ — ক্লাসিক লেজার (আগের ডিজাইন)
+     ========================================================= */
+  body[data-theme="1"]{
+    --ink:#1B2A4A; --ink-soft:#3A4A6B; --paper:#F7F5F0; --panel:#FFFFFF;
+    --gold:#C9A227; --gold-soft:#EFE3B8; --line:#E3DFD3; --good:#1E7A4C; --bad:#B4432E;
+    --ssc:#1B2A4A; --hsc:#8A6FB0; --radius:10px;
+    background:var(--paper);color:var(--ink);
+  }
+  body[data-theme="1"] .ledger-top{background:var(--ink);color:#fff;padding:34px 24px 26px;position:relative;overflow:hidden;}
+  body[data-theme="1"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--gold) 0 18px, transparent 18px 26px);}
+  body[data-theme="1"] .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(20px,3.2vw,29px);margin:0 0 4px;}
+  body[data-theme="1"] .sub{color:var(--gold-soft);font-size:13.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  body[data-theme="1"] .dot{background:var(--good);}
+  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:26px;}
+  body[data-theme="1"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 14px;position:relative;}
+  body[data-theme="1"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  body[data-theme="1"] .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:26px;font-weight:700;color:var(--ink);}
+  body[data-theme="1"] .kpi::before{content:"";position:absolute;top:0;left:18px;right:18px;height:3px;background:var(--gold);border-radius:0 0 3px 3px;}
+  body[data-theme="1"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
+  body[data-theme="1"] .card,
+  body[data-theme="1"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
+  body[data-theme="1"] .card h2,
+  body[data-theme="1"] .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
+  body[data-theme="1"] .legend-row{color:var(--ink-soft);}
+  body[data-theme="1"] .mini-bar{background:var(--line);}
+  body[data-theme="1"] .mini-bar i{background:var(--ink);}
+  body[data-theme="1"] .mini-bar.hsc i{background:var(--hsc);}
+  body[data-theme="1"] .pct{color:var(--ink-soft);}
+  body[data-theme="1"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
+  body[data-theme="1"] tbody td{border-bottom:1px solid var(--line);}
+  body[data-theme="1"] tbody tr:hover{background:#FAF8F2;}
+  body[data-theme="1"] tr.total-row td{font-weight:700;background:#FBF3E4;border-top:2px solid var(--gold);}
+  body[data-theme="1"] .footer-note{color:var(--ink-soft);}
+  body[data-theme="1"] .error-box{background:#F7E5E1;border:1px solid var(--bad);color:var(--bad);}
+  body[data-theme="1"] .state{color:var(--ink-soft);}
+
+  /* =========================================================
+     থিম ২ — মডার্ন মিনিমাল
+     ========================================================= */
+  body[data-theme="2"]{
+    --ink:#0F172A; --ink-soft:#64748B; --paper:#F8FAFC; --panel:#FFFFFF;
+    --accent:#2563EB; --accent2:#38BDF8; --line:#E2E8F0; --good:#16A34A; --bad:#DC2626; --radius:16px;
+    background:var(--paper);color:var(--ink);font-family:"Inter","Hind Siliguri",sans-serif;
+  }
+  body[data-theme="2"] .ledger-top{background:#fff;color:var(--ink);padding:30px 24px;border-bottom:1px solid var(--line);}
+  body[data-theme="2"] .ledger-top h1{font-family:"Inter","Hind Siliguri",sans-serif;font-weight:800;font-size:clamp(19px,3vw,26px);margin:0 0 6px;letter-spacing:-.3px;}
+  body[data-theme="2"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  body[data-theme="2"] .dot{background:var(--good);}
+  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:22px;}
+  body[data-theme="2"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+  body[data-theme="2"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
+  body[data-theme="2"] .kpi .num{font-family:"Inter",sans-serif;font-size:25px;font-weight:700;color:var(--accent);}
+  body[data-theme="2"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:14px;}
+  body[data-theme="2"] .card,
+  body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+  body[data-theme="2"] .card h2,
+  body[data-theme="2"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
+  body[data-theme="2"] .legend-row{color:var(--ink-soft);}
+  body[data-theme="2"] .mini-bar{background:var(--line);}
+  body[data-theme="2"] .mini-bar i{background:var(--accent);}
+  body[data-theme="2"] .mini-bar.hsc i{background:var(--accent2);}
+  body[data-theme="2"] .pct{color:var(--ink-soft);}
+  body[data-theme="2"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
+  body[data-theme="2"] tbody td{border-bottom:1px solid var(--line);}
+  body[data-theme="2"] tbody tr:hover{background:#F1F5F9;}
+  body[data-theme="2"] tr.total-row td{font-weight:700;background:#EFF6FF;}
+  body[data-theme="2"] .footer-note{color:var(--ink-soft);}
+  body[data-theme="2"] .error-box{background:#FEF2F2;border:1px solid var(--bad);color:var(--bad);border-radius:10px;}
+  body[data-theme="2"] .state{color:var(--ink-soft);}
+
+  /* =========================================================
+     থিম ৩ — ডার্ক অ্যানালিটিক্স
+     ========================================================= */
+  body[data-theme="3"]{
+    --ink:#E2E8F0; --ink-soft:#94A3B8; --paper:#0B1120; --panel:#131B2E;
+    --accent:#22D3EE; --accent2:#C084FC; --line:#1E293B; --good:#34D399; --bad:#F87171; --radius:12px;
+    background:var(--paper);color:var(--ink);font-family:"Space Grotesk","Hind Siliguri",sans-serif;
+  }
+  body[data-theme="3"] .ledger-top{background:linear-gradient(180deg,#0B1120,#131B2E);color:#fff;padding:32px 24px;border-bottom:1px solid var(--line);position:relative;}
+  body[data-theme="3"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  body[data-theme="3"] .ledger-top h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(19px,3vw,26px);margin:0 0 6px;}
+  body[data-theme="3"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  body[data-theme="3"] .dot{background:var(--accent);box-shadow:0 0 8px var(--accent);}
+  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
+  body[data-theme="3"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
+  body[data-theme="3"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  body[data-theme="3"] .kpi .num{font-family:"Space Grotesk",sans-serif;font-size:25px;font-weight:700;color:var(--accent);text-shadow:0 0 14px rgba(34,211,238,.35);}
+  body[data-theme="3"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:14px;}
+  body[data-theme="3"] .card,
+  body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
+  body[data-theme="3"] .card h2,
+  body[data-theme="3"] .table-card h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:#fff;}
+  body[data-theme="3"] .legend-row{color:var(--ink-soft);}
+  body[data-theme="3"] .mini-bar{background:var(--line);}
+  body[data-theme="3"] .mini-bar i{background:var(--accent);}
+  body[data-theme="3"] .mini-bar.hsc i{background:var(--accent2);}
+  body[data-theme="3"] .pct{color:var(--ink-soft);}
+  body[data-theme="3"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
+  body[data-theme="3"] tbody td{border-bottom:1px solid var(--line);}
+  body[data-theme="3"] tbody tr:hover{background:#1A2338;}
+  body[data-theme="3"] tr.total-row td{font-weight:700;background:#17233B;box-shadow:inset 0 1px 0 var(--accent);}
+  body[data-theme="3"] .footer-note{color:var(--ink-soft);}
+  body[data-theme="3"] .error-box{background:#3B1418;border:1px solid var(--bad);color:#FCA5A5;}
+  body[data-theme="3"] .state{color:var(--ink-soft);}
+
+  /* =========================================================
+     থিম ৪ — গ্লাসমরফিজম
+     ========================================================= */
+  body[data-theme="4"]{
+    --ink:#1E1B3A; --ink-soft:#5B5580; --panel:rgba(255,255,255,.55); --line:rgba(255,255,255,.6);
+    --accent:#818CF8; --accent2:#F472B6; --good:#10B981; --bad:#EF4444; --radius:18px;
+    color:var(--ink);font-family:"Inter","Hind Siliguri",sans-serif;
+    background:radial-gradient(circle at 15% 10%, #C4B5FD 0%, transparent 45%),
+               radial-gradient(circle at 85% 15%, #93C5FD 0%, transparent 45%),
+               radial-gradient(circle at 50% 100%, #FBCFE8 0%, transparent 50%),
+               linear-gradient(160deg,#EEF2FF,#F5F3FF 60%,#FCE7F3);
+    background-attachment:fixed;
+  }
+  body[data-theme="4"] .ledger-top{background:rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);padding:32px 24px;border-bottom:1px solid rgba(255,255,255,.6);}
+  body[data-theme="4"] .ledger-top h1{font-family:"Inter",sans-serif;font-weight:800;font-size:clamp(19px,3vw,26px);margin:0 0 6px;letter-spacing:-.3px;}
+  body[data-theme="4"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  body[data-theme="4"] .dot{background:var(--good);}
+  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
+  body[data-theme="4"] .kpi{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:0 8px 24px rgba(99,102,241,.12);}
+  body[data-theme="4"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  body[data-theme="4"] .kpi .num{font-family:"Inter",sans-serif;font-size:24px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  body[data-theme="4"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:14px;}
+  body[data-theme="4"] .card,
+  body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
+  body[data-theme="4"] .card h2,
+  body[data-theme="4"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
+  body[data-theme="4"] .legend-row{color:var(--ink-soft);}
+  body[data-theme="4"] .mini-bar{background:rgba(30,27,58,.12);}
+  body[data-theme="4"] .mini-bar i{background:var(--accent);}
+  body[data-theme="4"] .mini-bar.hsc i{background:var(--accent2);}
+  body[data-theme="4"] .pct{color:var(--ink-soft);}
+  body[data-theme="4"] thead th{color:var(--ink-soft);border-bottom:1px solid rgba(30,27,58,.15);}
+  body[data-theme="4"] tbody td{border-bottom:1px solid rgba(30,27,58,.08);}
+  body[data-theme="4"] tbody tr:hover{background:rgba(255,255,255,.4);}
+  body[data-theme="4"] tr.total-row td{font-weight:700;background:rgba(255,255,255,.5);}
+  body[data-theme="4"] .footer-note{color:var(--ink-soft);}
+  body[data-theme="4"] .error-box{background:rgba(239,68,68,.12);border:1px solid var(--bad);color:#B91C1C;border-radius:12px;}
+  body[data-theme="4"] .state{color:var(--ink-soft);}
+
+  /* =========================================================
+     থিম ৫ — কর্পোরেট এক্সিকিউটিভ
+     ========================================================= */
+  body[data-theme="5"]{
+    --ink:#1F2937; --ink-soft:#6B7280; --paper:#F3F4F1; --panel:#FFFFFF;
+    --accent:#1B2A4A; --accent2:#8C1D2B; --line:#D9D5C9; --good:#2F6F4E; --bad:#8C1D2B; --radius:4px;
+    background:var(--paper);color:var(--ink);font-family:"Hind Siliguri",sans-serif;
+  }
+  body[data-theme="5"] .ledger-top{background:#1B2A4A;color:#fff;padding:30px 24px;border-bottom:4px solid var(--accent2);}
+  body[data-theme="5"] .ledger-top h1{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(19px,3vw,27px);margin:0 0 6px;}
+  body[data-theme="5"] .sub{color:#C7CEDD;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-transform:uppercase;letter-spacing:.4px;}
+  body[data-theme="5"] .dot{background:#9CA3AF;}
+  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;margin-bottom:26px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
+  body[data-theme="5"] .kpi{background:var(--panel);border-right:1px solid var(--line);padding:18px 18px 16px;position:relative;}
+  body[data-theme="5"] .kpi:last-child{border-right:none;}
+  body[data-theme="5"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-soft);margin-bottom:9px;font-weight:600;}
+  body[data-theme="5"] .kpi .num{font-family:"Playfair Display",serif;font-size:23px;font-weight:700;color:var(--accent);}
+  body[data-theme="5"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:0;margin-bottom:0;border:1px solid var(--line);border-top:none;}
+  body[data-theme="5"] .card{background:var(--panel);border-right:1px solid var(--line);padding:20px;}
+  body[data-theme="5"] .panels .card:last-child{border-right:none;}
+  body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);border-top:none;padding:20px;}
+  body[data-theme="5"] .card h2,
+  body[data-theme="5"] .table-card h2{font-family:"Playfair Display",serif;font-weight:600;font-size:15px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--ink);}
+  body[data-theme="5"] .legend-row{color:var(--ink-soft);}
+  body[data-theme="5"] .mini-bar{background:var(--line);border-radius:0;}
+  body[data-theme="5"] .mini-bar i{background:var(--accent);}
+  body[data-theme="5"] .mini-bar.hsc i{background:var(--accent2);}
+  body[data-theme="5"] .pct{color:var(--ink-soft);}
+  body[data-theme="5"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
+  body[data-theme="5"] tbody td{border-bottom:1px solid var(--line);}
+  body[data-theme="5"] tbody tr:hover{background:#F7F6F2;}
+  body[data-theme="5"] tr.total-row td{font-weight:700;background:#F1EFE8;border-top:2px solid var(--accent2);}
+  body[data-theme="5"] .footer-note{color:var(--ink-soft);}
+  body[data-theme="5"] .error-box{background:#FBEAE7;border:1px solid var(--bad);color:var(--bad);}
+  body[data-theme="5"] .state{color:var(--ink-soft);}
+</style>
+</head>
+<body data-theme="1">
+
+<div class="switch-bar">
+  <span class="hint">রঙ/থিম প্রিভিউ —</span>
+  <button data-theme-btn="1">১. ক্লাসিক লেজার</button>
+  <button data-theme-btn="2">২. মডার্ন মিনিমাল</button>
+  <button data-theme-btn="3">৩. ডার্ক অ্যানালিটিক্স</button>
+  <button data-theme-btn="4">৪. গ্লাসমরফিজম</button>
+  <button data-theme-btn="5">৫. কর্পোরেট এক্সিকিউটিভ</button>
+</div>
+<div class="layout-bar">
+  <span class="hint">ডাটা দেখানোর ফরম্যাট —</span>
+  <button data-layout-btn="1">১. স্ট্যান্ডার্ড টেবিল</button>
+  <button data-layout-btn="2">২. কার্ড গ্রিড (রিং)</button>
+  <button data-layout-btn="3">৩. কমপ্যাক্ট লিস্ট</button>
+  <button data-layout-btn="4">৪. রেস-বার তুলনা</button>
+  <button data-layout-btn="5">৫. স্কোরকার্ড টাইল</button>
+</div>
+
+<div class="ledger-top">
+  <h1>Admission 2026 — বোর্ড ডাটা সিঙ্ক্রোনাইজেশন সামারি</h1>
+  <div class="sub"><span class="dot dot-live"></span> Live — Google Sheet থেকে সরাসরি সংযুক্ত · <span id="lastUpdated">লোড হচ্ছে…</span></div>
+</div>
+
+<div class="wrap">
+  <div id="errorArea"></div>
+  <div id="kpiRow" class="kpi-row"></div>
+
+  <div class="panels">
+    <div class="card">
+      <h2>প্রোগ্রামভিত্তিক বোর্ড ডাটা সংগ্রহের হার</h2>
+      <canvas id="barChart" height="230"></canvas>
+      <div class="legend-row">
+        <span><i class="sw" id="legendSsc"></i> SSC সংগৃহীত %</span>
+        <span><i class="sw" id="legendHsc"></i> HSC সংগৃহীত %</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>সামগ্রিক অবস্থা (Yes বনাম No)</h2>
+      <canvas id="overallChart" height="230"></canvas>
+    </div>
+  </div>
+
+  <div id="programSection"></div>
+
+  <div class="footer-note">প্রতি <span id="refreshMin"></span> মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>
+</div>
+
+<script>
+document.getElementById("refreshMin").textContent = CONFIG.REFRESH_MINUTES;
+let barChartInst = null, overallChartInst = null;
+let lastRows = null, lastTotals = null;
+
+const THEME_PALETTE = {
+  1: { ssc:"#1B2A4A", hsc:"#8A6FB0", yes:"#1E7A4C", no:"#E3DFD3", grid:"#EEE9DD", text:"#3A4A6B" },
+  2: { ssc:"#2563EB", hsc:"#38BDF8", yes:"#16A34A", no:"#E2E8F0", grid:"#EEF2F7", text:"#64748B" },
+  3: { ssc:"#22D3EE", hsc:"#C084FC", yes:"#34D399", no:"#1E293B", grid:"#1E293B", text:"#94A3B8" },
+  4: { ssc:"#818CF8", hsc:"#F472B6", yes:"#10B981", no:"rgba(30,27,58,.12)", grid:"rgba(30,27,58,.08)", text:"#5B5580" },
+  5: { ssc:"#1B2A4A", hsc:"#8C1D2B", yes:"#2F6F4E", no:"#D9D5C9", grid:"#E4E1D8", text:"#6B7280" }
+};
+
+function currentTheme(){ return document.body.getAttribute("data-theme"); }
+let layoutState = "1";
+function currentLayout(){ return layoutState; }
+function shortName(program){
+  return program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)");
+}
+
+function showError(msg){
+  document.getElementById("errorArea").innerHTML = `<div class="error-box">⚠ ${msg}</div>`;
+}
+function num(v){
+  if(v === undefined || v === null) return 0;
+  const n = parseFloat(String(v).replace(/,/g,"").trim());
+  return isNaN(n) ? 0 : n;
+}
+function pct(a,b){ return b > 0 ? Math.round((a/b)*1000)/10 : 0; }
+
+async function loadData(){
+  try{
+    const res = await fetch(CONFIG.CSV_URL + (CONFIG.CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const csvText = await res.text();
+    const grid = Papa.parse(csvText, { header:false, skipEmptyLines:false }).data;
+    parseAndRender(grid);
+    document.getElementById("errorArea").innerHTML = "";
+    document.getElementById("lastUpdated").textContent = "সবশেষ আপডেট: " + new Date().toLocaleString("bn-BD");
+  }catch(err){
+    showError("ডাটা লোড করা যায়নি। শীটের শেয়ারিং/পাবলিশ সেটিংস যাচাই করুন। (" + err.message + ")");
+  }
+}
+
+function parseAndRender(grid){
+  let slRow = -1, slCol = -1;
+  for(let r=0; r<grid.length; r++){
+    for(let c=0; c<grid[r].length; c++){
+      const v = (grid[r][c] || "").toString().trim().toLowerCase();
+      if(v === "sl" || v === "sl."){ slRow = r; slCol = c; break; }
+    }
+    if(slRow !== -1) break;
+  }
+  if(slRow === -1){ showError("শীটের হেডার কাঠামো চেনা যায়নি (Sl কলাম পাওয়া যায়নি)।"); return; }
+
+  const programCol = slCol + 1;
+  const totalCol = slCol + 2;
+  const sscYesCol = slCol + 3, sscNoCol = slCol + 4, sscSyncYesCol = slCol + 5, sscSyncNoCol = slCol + 6;
+  const hscYesCol = slCol + 7, hscNoCol = slCol + 8, hscSyncYesCol = slCol + 9, hscSyncNoCol = slCol + 10;
+  const totalLabel = (grid[slRow][totalCol] || "মোট আবেদন").toString().trim();
+
+  const rows = [];
+  let totals = null;
+  let blankStreak = 0;
+
+  for(let r = slRow + 1; r < grid.length; r++){
+    const row = grid[r] || [];
+    const programText = (row[programCol] || "").toString().trim();
+    const slText = (row[slCol] || "").toString().trim();
+
+    if(/total/i.test(programText) || /total/i.test(slText)){
+      totals = {
+        total: num(row[totalCol]),
+        sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
+        sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
+        hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
+        hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
+      };
+      break;
+    }
+    if(/^\d+$/.test(slText) && programText){
+      rows.push({
+        sl: slText, program: programText, total: num(row[totalCol]),
+        sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
+        sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
+        hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
+        hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
+      });
+      blankStreak = 0;
+    } else {
+      blankStreak++;
+      if(blankStreak > 5) break;
+    }
+  }
+
+  if(!rows.length){ showError("কোনো প্রোগ্রামের ডাটা পাওয়া যায়নি।"); return; }
+  if(!totals){
+    totals = rows.reduce((a,r) => ({
+      total:a.total+r.total, sscYes:a.sscYes+r.sscYes, sscNo:a.sscNo+r.sscNo,
+      sscSyncYes:a.sscSyncYes+r.sscSyncYes, sscSyncNo:a.sscSyncNo+r.sscSyncNo,
+      hscYes:a.hscYes+r.hscYes, hscNo:a.hscNo+r.hscNo,
+      hscSyncYes:a.hscSyncYes+r.hscSyncYes, hscSyncNo:a.hscSyncNo+r.hscSyncNo
+    }), {total:0,sscYes:0,sscNo:0,sscSyncYes:0,sscSyncNo:0,hscYes:0,hscNo:0,hscSyncYes:0,hscSyncNo:0});
+  }
+
+  lastRows = rows; lastTotals = totals;
+  renderAll(totalLabel);
+}
+
+function renderAll(totalLabel){
+  if(!lastRows || !lastTotals) return;
+  renderKPIs(lastTotals, lastRows.length, totalLabel || "মোট আবেদন");
+  updateLegendSwatches();
+
+  if(typeof Chart === "undefined"){
+    document.getElementById("barChart").outerHTML = '<div class="state">চার্ট লাইব্রেরি লোড হয়নি (সম্ভবত Ad-blocker এটি ব্লক করেছে)। নিচের টেবিলে সম্পূর্ণ ডাটা দেখুন।</div>';
+    document.getElementById("overallChart").outerHTML = '<div class="state">চার্ট লাইব্রেরি লোড হয়নি।</div>';
+  } else {
+    try{ renderBarChart(lastRows); }catch(e){ console.error(e); }
+    try{ renderOverallChart(lastTotals); }catch(e){ console.error(e); }
+  }
+
+  renderProgramSection(lastRows, lastTotals);
+}
+
+function updateLegendSwatches(){
+  const p = THEME_PALETTE[currentTheme()];
+  const ssc = document.getElementById("legendSsc");
+  const hsc = document.getElementById("legendHsc");
+  if(ssc) ssc.style.background = p.ssc;
+  if(hsc) hsc.style.background = p.hsc;
+}
+
+function renderKPIs(t, programCount, totalLabel){
+  const sscPct = pct(t.sscYes, t.total);
+  const hscPct = pct(t.hscYes, t.total);
+  const sscSyncPct = pct(t.sscSyncYes, t.total);
+  const hscSyncPct = pct(t.hscSyncYes, t.total);
+  const kpis = [
+    {label: totalLabel, value: t.total.toLocaleString("en-US")},
+    {label:"মোট প্রোগ্রাম", value: programCount},
+    {label:"SSC ডাটা সংগ্রহ", value: sscPct + "%"},
+    {label:"HSC ডাটা সংগ্রহ", value: hscPct + "%"},
+    {label:"SSC সিঙ্ক্রোনাইজড", value: sscSyncPct + "%"},
+    {label:"HSC সিঙ্ক্রোনাইজড", value: hscSyncPct + "%"}
+  ];
+  document.getElementById("kpiRow").innerHTML = kpis.map(k =>
+    `<div class="kpi"><div class="eyebrow">${k.label}</div><div class="num">${k.value}</div></div>`
+  ).join("");
+}
+
+function renderBarChart(rows){
+  const p = THEME_PALETTE[currentTheme()];
+  const labels = rows.map(r => r.program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)"));
+  const sscPcts = rows.map(r => pct(r.sscYes, r.total));
+  const hscPcts = rows.map(r => pct(r.hscYes, r.total));
+
+  if(barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(document.getElementById("barChart"), {
+    type:"bar",
+    data:{ labels, datasets:[
+      { label:"SSC", data: sscPcts, backgroundColor:p.ssc, borderRadius:3, maxBarThickness:18 },
+      { label:"HSC", data: hscPcts, backgroundColor:p.hsc, borderRadius:3, maxBarThickness:18 }
+    ]},
+    options:{
+      indexAxis:"y",
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: (ctx) => ctx.dataset.label + ": " + ctx.parsed.x + "%" } } },
+      scales:{
+        x:{ beginAtZero:true, max:100, grid:{color:p.grid}, ticks:{ callback:(v)=>v+"%", color:p.text } },
+        y:{ grid:{display:false}, ticks:{ color:p.text } }
+      }
+    }
+  });
+}
+
+function renderOverallChart(t){
+  const p = THEME_PALETTE[currentTheme()];
+  const labels = ["SSC সংগ্রহ", "HSC সংগ্রহ", "SSC সিঙ্ক", "HSC সিঙ্ক"];
+  const yes = [t.sscYes, t.hscYes, t.sscSyncYes, t.hscSyncYes];
+  const no = [t.sscNo, t.hscNo, t.sscSyncNo, t.hscSyncNo];
+
+  if(overallChartInst) overallChartInst.destroy();
+  overallChartInst = new Chart(document.getElementById("overallChart"), {
+    type:"bar",
+    data:{ labels, datasets:[
+      { label:"Yes", data: yes, backgroundColor:p.yes, borderRadius:3, maxBarThickness:26, stack:"s" },
+      { label:"No", data: no, backgroundColor:p.no, borderRadius:3, maxBarThickness:26, stack:"s" }
+    ]},
+    options:{
+      plugins:{ legend:{ position:"bottom", labels:{boxWidth:12, font:{size:11.5}, color:p.text} } },
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{font:{size:11}, color:p.text} },
+        y:{ stacked:true, beginAtZero:true, grid:{color:p.grid}, ticks:{ color:p.text } }
+      }
+    }
+  });
+}
+
+function tableCardHtml(rows, totals, heading){
+  const rowHtml = (label, r, isTotal) => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
+    return `<tr${isTotal ? ' class="total-row"' : ''}>
+      <td class="left">${isTotal ? '' : r.sl}</td>
+      <td class="left">${label}</td>
+      <td>${r.total.toLocaleString("en-US")}</td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscP}%"></i></div><span class="pct">${sscP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscSyncP}%"></i></div><span class="pct">${sscSyncP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar hsc"><i style="width:${hscP}%"></i></div><span class="pct">${hscP}%</span></div></td>
+      <td><div class="bar-cell"><div class="mini-bar hsc"><i style="width:${hscSyncP}%"></i></div><span class="pct">${hscSyncP}%</span></div></td>
+    </tr>`;
+  };
+  let bodyHtml = rows.map(r => rowHtml(r.program, r, false)).join("");
+  bodyHtml += rowHtml("সর্বমোট", totals, true);
+  return `<div class="table-card">
+    <h2>${heading}</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="left">Sl</th>
+            <th class="left">Program</th>
+            <th>মোট আবেদন</th>
+            <th>SSC সংগ্রহ</th>
+            <th>SSC সিঙ্ক</th>
+            <th>HSC সংগ্রহ</th>
+            <th>HSC সিঙ্ক</th>
+          </tr>
+        </thead>
+        <tbody>${bodyHtml}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function ringHtml(pctVal, color, label){
+  const deg = (pctVal * 3.6).toFixed(1);
+  return `<div class="prog-ring" style="background:conic-gradient(${color} 0deg ${deg}deg, var(--line) ${deg}deg 360deg)">
+    <div class="prog-ring-hole"><b>${pctVal}%</b><span>${label}</span></div>
+  </div>`;
+}
+
+function cardGridHtml(rows, p){
+  const cards = rows.map(r => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    return `<div class="prog-card">
+      <div class="prog-card-head"><span class="prog-card-sl">${r.sl}</span><span class="prog-card-name">${shortName(r.program)}</span></div>
+      <div class="prog-card-total"><b>${r.total.toLocaleString("en-US")}</b>মোট আবেদন</div>
+      <div class="prog-ring-row">${ringHtml(sscP, p.ssc, "SSC")}${ringHtml(hscP, p.hsc, "HSC")}</div>
+    </div>`;
+  }).join("");
+  return `<div class="card"><h2>প্রোগ্রামভিত্তিক কার্ড ভিউ (রিং প্রগ্রেস)</h2><div class="prog-card-grid">${cards}</div></div>`;
+}
+
+function compactListHtml(rows, p){
+  const items = rows.map(r => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    return `<div class="compact-row">
+      <div class="compact-left"><span class="compact-sl">${r.sl}</span><span class="compact-name">${shortName(r.program)}</span></div>
+      <div class="compact-total">${r.total.toLocaleString("en-US")}</div>
+      <div class="compact-track">
+        <div class="compact-bar"><i style="width:${sscP}%;background:${p.ssc}"></i></div>
+        <div class="compact-bar"><i style="width:${hscP}%;background:${p.hsc}"></i></div>
+      </div>
+      <div class="compact-pcts">SSC ${sscP}% · HSC ${hscP}%</div>
+    </div>`;
+  }).join("");
+  return `<div class="card"><h2>কমপ্যাক্ট লিস্ট ভিউ</h2><div class="compact-list">${items}</div></div>`;
+}
+
+function raceBarHtml(rows, p){
+  const groups = rows.map(r => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    return `<div class="race-group">
+      <div class="race-title"><span>${r.sl}. ${shortName(r.program)}</span><span class="race-total">মোট ${r.total.toLocaleString("en-US")}</span></div>
+      <div class="race-row"><span class="race-label">SSC</span><div class="race-track"><i style="width:${sscP}%;background:${p.ssc}"></i></div><span class="race-pct">${sscP}%</span></div>
+      <div class="race-row"><span class="race-label">HSC</span><div class="race-track"><i style="width:${hscP}%;background:${p.hsc}"></i></div><span class="race-pct">${hscP}%</span></div>
+    </div>`;
+  }).join("");
+  return `<div class="card"><h2>SSC বনাম HSC রেস-বার তুলনা</h2>${groups}</div>`;
+}
+
+function scorecardHtml(rows, p){
+  const tiles = rows.map(r => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    return `<div class="score-tile">
+      <div class="score-tile-sl">Sl ${r.sl}</div>
+      <div class="score-tile-big">${r.total.toLocaleString("en-US")}</div>
+      <div class="score-tile-name">${shortName(r.program)}</div>
+      <div class="score-tile-pills">
+        <span class="pill" style="background:${p.ssc}">SSC ${sscP}%</span>
+        <span class="pill" style="background:${p.hsc}">HSC ${hscP}%</span>
+      </div>
+    </div>`;
+  }).join("");
+  return `<div class="card"><h2>স্কোরকার্ড টাইল ভিউ</h2><div class="score-tile-grid">${tiles}</div></div>`;
+}
+
+function renderProgramSection(rows, totals){
+  const layout = currentLayout();
+  const p = THEME_PALETTE[currentTheme()];
+  const refHeading = "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা (রেফারেন্স টেবিল)";
+  let html = "";
+  if(layout === "1"){
+    html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা");
+  } else if(layout === "2"){
+    html = cardGridHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
+  } else if(layout === "3"){
+    html = compactListHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
+  } else if(layout === "4"){
+    html = raceBarHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
+  } else if(layout === "5"){
+    html = scorecardHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
+  }
+  document.getElementById("programSection").innerHTML = html;
+}
+
+/* ============ থিম সুইচার লজিক ============ */
+function setTheme(n){
+  document.body.setAttribute("data-theme", n);
+  document.querySelectorAll("[data-theme-btn]").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("data-theme-btn") === String(n));
+  });
+  localStorage.setItem("ap26bd_theme_preview", n);
+  renderAll();
+}
+document.querySelectorAll("[data-theme-btn]").forEach(btn => {
+  btn.addEventListener("click", () => setTheme(btn.getAttribute("data-theme-btn")));
+});
+
+/* ============ লেআউট (ডাটা-ফরম্যাট) সুইচার লজিক ============ */
+function setLayout(n){
+  layoutState = n;
+  document.querySelectorAll("[data-layout-btn]").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("data-layout-btn") === String(n));
+  });
+  localStorage.setItem("ap26bd_layout_preview", n);
+  renderAll();
+}
+document.querySelectorAll("[data-layout-btn]").forEach(btn => {
+  btn.addEventListener("click", () => setLayout(btn.getAttribute("data-layout-btn")));
+});
+
+setTheme(localStorage.getItem("ap26bd_theme_preview") || "1");
+setLayout(localStorage.getItem("ap26bd_layout_preview") || "1");
+
+loadData();
+setInterval(loadData, CONFIG.REFRESH_MINUTES * 60 * 1000);
+</script>
+
+</body>
+</html>
