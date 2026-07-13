@@ -28,13 +28,14 @@
   .mini-bar{width:52px;height:6px;border-radius:3px;overflow:hidden;}
   .mini-bar i{display:block;height:100%;}
   .pct{font-size:11.5px;min-width:32px;text-align:right;}
+  .stat-count{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:5px;}
   .table-scroll{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
   thead th{text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:8px 8px;white-space:nowrap;}
   thead th.left{text-align:left;}
-  tbody td{padding:9px 8px;text-align:center;}
+  tbody td{padding:16px 8px;text-align:center;}
   tbody td.left{text-align:left;font-weight:600;}
-  .ledger-top{text-align:center;}
+  .ledger-top{text-align:center;position:sticky;top:0;z-index:80;}
   .sub{justify-content:center;}
   .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
@@ -101,9 +102,9 @@
     --ssc:#1B2A4A; --hsc:#8A6FB0; --radius:10px;
     background:var(--paper);color:var(--ink);
   }
-  body[data-theme="1"] .ledger-top{background:var(--ink);color:#fff;padding:34px 24px 26px;position:relative;overflow:hidden;}
+  body[data-theme="1"] .ledger-top{background:var(--ink);color:#fff;padding:16px 24px 13px;overflow:hidden;}
   body[data-theme="1"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--gold) 0 18px, transparent 18px 26px);}
-  body[data-theme="1"] .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(20px,3.2vw,29px);margin:0 0 4px;}
+  body[data-theme="1"] .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(16px,2.4vw,21px);margin:0 0 2px;}
   body[data-theme="1"] .sub{color:var(--gold-soft);font-size:13.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   body[data-theme="1"] .dot{background:var(--good);}
   body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:26px;}
@@ -132,8 +133,8 @@
     --accent:#2563EB; --accent2:#38BDF8; --line:#E2E8F0; --good:#16A34A; --bad:#DC2626; --radius:16px;
     background:var(--paper);color:var(--ink);font-family:"Inter","Hind Siliguri",sans-serif;
   }
-  body[data-theme="2"] .ledger-top{background:#fff;color:var(--ink);padding:30px 24px;border-bottom:1px solid var(--line);}
-  body[data-theme="2"] .ledger-top h1{font-family:"Inter","Hind Siliguri",sans-serif;font-weight:800;font-size:clamp(19px,3vw,26px);margin:0 0 6px;letter-spacing:-.3px;}
+  body[data-theme="2"] .ledger-top{background:#fff;color:var(--ink);padding:15px 24px;border-bottom:1px solid var(--line);}
+  body[data-theme="2"] .ledger-top h1{font-family:"Inter","Hind Siliguri",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
   body[data-theme="2"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   body[data-theme="2"] .dot{background:var(--good);}
   body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:22px;}
@@ -161,9 +162,9 @@
     --accent:#22D3EE; --accent2:#C084FC; --line:#1E293B; --good:#34D399; --bad:#F87171; --radius:12px;
     background:var(--paper);color:var(--ink);font-family:"Space Grotesk","Hind Siliguri",sans-serif;
   }
-  body[data-theme="3"] .ledger-top{background:linear-gradient(180deg,#0B1120,#131B2E);color:#fff;padding:32px 24px;border-bottom:1px solid var(--line);position:relative;}
+  body[data-theme="3"] .ledger-top{background:linear-gradient(180deg,#0B1120,#131B2E);color:#fff;padding:16px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="3"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
-  body[data-theme="3"] .ledger-top h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(19px,3vw,26px);margin:0 0 6px;}
+  body[data-theme="3"] .ledger-top h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;}
   body[data-theme="3"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   body[data-theme="3"] .dot{background:var(--accent);box-shadow:0 0 8px var(--accent);}
   body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
@@ -196,8 +197,8 @@
                linear-gradient(160deg,#EEF2FF,#F5F3FF 60%,#FCE7F3);
     background-attachment:fixed;
   }
-  body[data-theme="4"] .ledger-top{background:rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);padding:32px 24px;border-bottom:1px solid rgba(255,255,255,.6);}
-  body[data-theme="4"] .ledger-top h1{font-family:"Inter",sans-serif;font-weight:800;font-size:clamp(19px,3vw,26px);margin:0 0 6px;letter-spacing:-.3px;}
+  body[data-theme="4"] .ledger-top{background:rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.6);}
+  body[data-theme="4"] .ledger-top h1{font-family:"Inter",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
   body[data-theme="4"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   body[data-theme="4"] .dot{background:var(--good);}
   body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
@@ -225,8 +226,8 @@
     --accent:#1B2A4A; --accent2:#8C1D2B; --line:#D9D5C9; --good:#2F6F4E; --bad:#8C1D2B; --radius:4px;
     background:var(--paper);color:var(--ink);font-family:"Hind Siliguri",sans-serif;
   }
-  body[data-theme="5"] .ledger-top{background:#1B2A4A;color:#fff;padding:30px 24px;border-bottom:4px solid var(--accent2);}
-  body[data-theme="5"] .ledger-top h1{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(19px,3vw,27px);margin:0 0 6px;}
+  body[data-theme="5"] .ledger-top{background:#1B2A4A;color:#fff;padding:15px 24px;border-bottom:2px solid var(--accent2);}
+  body[data-theme="5"] .ledger-top h1{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(15px,2.2vw,20px);margin:0 0 3px;}
   body[data-theme="5"] .sub{color:#C7CEDD;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-transform:uppercase;letter-spacing:.4px;}
   body[data-theme="5"] .dot{background:#9CA3AF;}
   body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;margin-bottom:26px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
@@ -394,22 +395,22 @@ function parseAndRender(grid){
 
 function renderAll(totalLabel){
   if(!lastRows || !lastTotals) return;
-  renderKPIs(lastTotals, lastRows.length, totalLabel || "মোট আবেদন");
+  renderKPIs(lastTotals, totalLabel || "মোট আবেদন");
   renderProgramSection(lastRows, lastTotals);
 }
 
-function renderKPIs(t, programCount, totalLabel){
+function renderKPIs(t, totalLabel){
   const sscPct = pct(t.sscYes, t.total);
   const hscPct = pct(t.hscYes, t.total);
   const sscSyncPct = pct(t.sscSyncYes, t.total);
   const hscSyncPct = pct(t.hscSyncYes, t.total);
+  const countPct = (count, p) => `${count.toLocaleString("en-US")} (${p}%)`;
   const kpis = [
     {label: totalLabel, value: t.total.toLocaleString("en-US")},
-    {label:"মোট প্রোগ্রাম", value: programCount},
-    {label:"SSC ডাটা সংগ্রহ", value: sscPct + "%"},
-    {label:"HSC ডাটা সংগ্রহ", value: hscPct + "%"},
-    {label:"SSC সিঙ্ক্রোনাইজড", value: sscSyncPct + "%"},
-    {label:"HSC সিঙ্ক্রোনাইজড", value: hscSyncPct + "%"}
+    {label:"SSC ডাটা সংগ্রহ", value: countPct(t.sscYes, sscPct)},
+    {label:"HSC ডাটা সংগ্রহ", value: countPct(t.hscYes, hscPct)},
+    {label:"SSC সিঙ্ক্রোনাইজড", value: countPct(t.sscSyncYes, sscSyncPct)},
+    {label:"HSC সিঙ্ক্রোনাইজড", value: countPct(t.hscSyncYes, hscSyncPct)}
   ];
   document.getElementById("kpiRow").innerHTML = kpis.map(k =>
     `<div class="kpi"><div class="eyebrow">${k.label}</div><div class="num">${k.value}</div></div>`
@@ -417,6 +418,10 @@ function renderKPIs(t, programCount, totalLabel){
 }
 
 function tableCardHtml(rows, totals, heading, p){
+  const statCell = (count, pctVal, color) => `<td>
+      <div class="stat-count">${count.toLocaleString("en-US")}</div>
+      <div class="bar-cell"><div class="mini-bar"><i style="width:${pctVal}%;background:${color}"></i></div><span class="pct">${pctVal}%</span></div>
+    </td>`;
   const rowHtml = (label, r, isTotal) => {
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
     const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
@@ -424,10 +429,10 @@ function tableCardHtml(rows, totals, heading, p){
       <td class="left">${isTotal ? '' : r.sl}</td>
       <td class="left">${label}</td>
       <td>${r.total.toLocaleString("en-US")}</td>
-      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscP}%;background:${p.ssc}"></i></div><span class="pct">${sscP}%</span></div></td>
-      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${sscSyncP}%;background:${p.ssc}"></i></div><span class="pct">${sscSyncP}%</span></div></td>
-      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${hscP}%;background:${p.hsc}"></i></div><span class="pct">${hscP}%</span></div></td>
-      <td><div class="bar-cell"><div class="mini-bar"><i style="width:${hscSyncP}%;background:${p.hsc}"></i></div><span class="pct">${hscSyncP}%</span></div></td>
+      ${statCell(r.sscYes, sscP, p.ssc)}
+      ${statCell(r.sscSyncYes, sscSyncP, p.ssc)}
+      ${statCell(r.hscYes, hscP, p.hsc)}
+      ${statCell(r.hscSyncYes, hscSyncP, p.hsc)}
     </tr>`;
   };
   let bodyHtml = rows.map(r => rowHtml(r.program, r, false)).join("");
@@ -440,7 +445,7 @@ function tableCardHtml(rows, totals, heading, p){
           <tr>
             <th class="left">Sl</th>
             <th class="left">Program</th>
-            <th>মোট আবেদন</th>
+            <th>মোট ডাটা</th>
             <th>SSC সংগ্রহ</th>
             <th>SSC সিঙ্ক</th>
             <th>HSC সংগ্রহ</th>
@@ -469,7 +474,7 @@ function cardGridHtml(rows, p){
       <div class="prog-ring-row">${ringHtml(sscP, p.ssc, "SSC")}${ringHtml(hscP, p.hsc, "HSC")}</div>
     </div>`;
   }).join("");
-  return `<div class="card"><h2>প্রোগ্রামভিত্তিক কার্ড ভিউ (রিং প্রগ্রেস)</h2><div class="prog-card-grid">${cards}</div></div>`;
+  return `<div class="card"><h2>প্রোগ্রামভিত্তিক কার্ড ভিউ</h2><div class="prog-card-grid">${cards}</div></div>`;
 }
 
 function raceBarHtml(rows, p){
@@ -481,7 +486,7 @@ function raceBarHtml(rows, p){
       <div class="race-row"><span class="race-label">HSC</span><div class="race-track"><i style="width:${hscP}%;background:${p.hsc}"></i></div><span class="race-pct">${hscP}%</span></div>
     </div>`;
   }).join("");
-  return `<div class="card"><h2>SSC বনাম HSC রেস-বার তুলনা</h2>${groups}</div>`;
+  return `<div class="card"><h2>SSC ও HSC ডাটা তুলনা</h2>${groups}</div>`;
 }
 
 function renderProgramSection(rows, totals){
