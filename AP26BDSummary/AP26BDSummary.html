@@ -48,12 +48,6 @@
   .dot-live{animation:pulse 2s infinite;}
 
   /* ============ লেআউট (ডাটা-ফরম্যাট) সুইচার বার ============ */
-  .layout-bar{background:#2B2B2B;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .layout-bar .hint{font-size:12px;opacity:.7;margin-right:6px;}
-  .layout-bar button{appearance:none;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;padding:7px 14px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;letter-spacing:.2px;transition:.15s;}
-  .layout-bar button:hover{background:rgba(255,255,255,.16);}
-  .layout-bar button.active{background:#F2C744;color:#2B2B2B;border-color:#F2C744;}
-
   /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
   .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
 
@@ -281,15 +275,6 @@
   <button data-theme-btn="4">৪. গ্লাসমরফিজম</button>
   <button data-theme-btn="5">৫. কর্পোরেট এক্সিকিউটিভ</button>
 </div>
-<div class="layout-bar">
-  <span class="hint">ডাটা দেখানোর ফরম্যাট —</span>
-  <button data-layout-btn="1">১. স্ট্যান্ডার্ড টেবিল</button>
-  <button data-layout-btn="2">২. কার্ড গ্রিড (রিং)</button>
-  <button data-layout-btn="3">৩. কমপ্যাক্ট লিস্ট</button>
-  <button data-layout-btn="4">৪. রেস-বার তুলনা</button>
-  <button data-layout-btn="5">৫. স্কোরকার্ড টাইল</button>
-</div>
-
 <div class="ledger-top">
   <h1>Admission 2026 — Board Data Synchronization Summary</h1>
   <div class="sub"><span class="dot dot-live"></span> <span id="lastUpdated">Loading…</span></div>
@@ -317,8 +302,6 @@ const THEME_PALETTE = {
 };
 
 function currentTheme(){ return document.body.getAttribute("data-theme"); }
-let layoutState = "1";
-function currentLayout(){ return layoutState; }
 function shortName(program){
   return program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)");
 }
@@ -537,21 +520,12 @@ function scorecardHtml(rows, p){
 }
 
 function renderProgramSection(rows, totals){
-  const layout = currentLayout();
   const p = THEME_PALETTE[currentTheme()];
-  const refHeading = "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা (রেফারেন্স টেবিল)";
-  let html = "";
-  if(layout === "1"){
-    html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা");
-  } else if(layout === "2"){
-    html = cardGridHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
-  } else if(layout === "3"){
-    html = compactListHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
-  } else if(layout === "4"){
-    html = raceBarHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
-  } else if(layout === "5"){
-    html = scorecardHtml(rows, p) + tableCardHtml(rows, totals, refHeading);
-  }
+  const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা")
+    + cardGridHtml(rows, p)
+    + compactListHtml(rows, p)
+    + raceBarHtml(rows, p)
+    + scorecardHtml(rows, p);
   document.getElementById("programSection").innerHTML = html;
 }
 
@@ -568,21 +542,7 @@ document.querySelectorAll("[data-theme-btn]").forEach(btn => {
   btn.addEventListener("click", () => setTheme(btn.getAttribute("data-theme-btn")));
 });
 
-/* ============ লেআউট (ডাটা-ফরম্যাট) সুইচার লজিক ============ */
-function setLayout(n){
-  layoutState = n;
-  document.querySelectorAll("[data-layout-btn]").forEach(b => {
-    b.classList.toggle("active", b.getAttribute("data-layout-btn") === String(n));
-  });
-  localStorage.setItem("ap26bd_layout_preview", n);
-  renderAll();
-}
-document.querySelectorAll("[data-layout-btn]").forEach(btn => {
-  btn.addEventListener("click", () => setLayout(btn.getAttribute("data-layout-btn")));
-});
-
 setTheme(localStorage.getItem("ap26bd_theme_preview") || "1");
-setLayout(localStorage.getItem("ap26bd_layout_preview") || "1");
 
 loadData();
 setInterval(loadData, CONFIG.REFRESH_MINUTES * 60 * 1000);
