@@ -13,7 +13,6 @@
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" onerror="document.write('<script src=https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js><\/script>')"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;700&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 
@@ -30,13 +29,8 @@
   .switch-bar button.active{background:#fff;color:#111;border-color:#fff;}
 
   .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
-  canvas{max-width:100%;}
   .footer-note{text-align:center;font-size:12px;margin-top:22px;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
-  .state{padding:50px 20px;text-align:center;font-size:13px;}
-  .legend-row{display:flex;gap:16px;font-size:12px;margin-top:10px;}
-  .legend-row span{display:inline-flex;align-items:center;gap:6px;}
-  .sw{width:10px;height:10px;border-radius:2px;display:inline-block;}
   .bar-cell{display:flex;align-items:center;gap:6px;justify-content:center;}
   .mini-bar{width:52px;height:6px;border-radius:3px;overflow:hidden;}
   .mini-bar i{display:block;height:100%;}
@@ -130,12 +124,10 @@
   body[data-theme="1"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
   body[data-theme="1"] .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:26px;font-weight:700;color:var(--ink);}
   body[data-theme="1"] .kpi::before{content:"";position:absolute;top:0;left:18px;right:18px;height:3px;background:var(--gold);border-radius:0 0 3px 3px;}
-  body[data-theme="1"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
   body[data-theme="1"] .card,
   body[data-theme="1"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
   body[data-theme="1"] .card h2,
   body[data-theme="1"] .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
-  body[data-theme="1"] .legend-row{color:var(--ink-soft);}
   body[data-theme="1"] .mini-bar{background:var(--line);}
   body[data-theme="1"] .mini-bar i{background:var(--ink);}
   body[data-theme="1"] .mini-bar.hsc i{background:var(--hsc);}
@@ -146,7 +138,6 @@
   body[data-theme="1"] tr.total-row td{font-weight:700;background:#FBF3E4;border-top:2px solid var(--gold);}
   body[data-theme="1"] .footer-note{color:var(--ink-soft);}
   body[data-theme="1"] .error-box{background:#F7E5E1;border:1px solid var(--bad);color:var(--bad);}
-  body[data-theme="1"] .state{color:var(--ink-soft);}
 
   /* =========================================================
      থিম ২ — মডার্ন মিনিমাল
@@ -164,12 +155,10 @@
   body[data-theme="2"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
   body[data-theme="2"] .kpi .num{font-family:"Inter",sans-serif;font-size:25px;font-weight:700;color:var(--accent);}
-  body[data-theme="2"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:14px;}
   body[data-theme="2"] .card,
   body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .card h2,
   body[data-theme="2"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
-  body[data-theme="2"] .legend-row{color:var(--ink-soft);}
   body[data-theme="2"] .mini-bar{background:var(--line);}
   body[data-theme="2"] .mini-bar i{background:var(--accent);}
   body[data-theme="2"] .mini-bar.hsc i{background:var(--accent2);}
@@ -180,7 +169,6 @@
   body[data-theme="2"] tr.total-row td{font-weight:700;background:#EFF6FF;}
   body[data-theme="2"] .footer-note{color:var(--ink-soft);}
   body[data-theme="2"] .error-box{background:#FEF2F2;border:1px solid var(--bad);color:var(--bad);border-radius:10px;}
-  body[data-theme="2"] .state{color:var(--ink-soft);}
 
   /* =========================================================
      থিম ৩ — ডার্ক অ্যানালিটিক্স
@@ -199,12 +187,10 @@
   body[data-theme="3"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
   body[data-theme="3"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
   body[data-theme="3"] .kpi .num{font-family:"Space Grotesk",sans-serif;font-size:25px;font-weight:700;color:var(--accent);text-shadow:0 0 14px rgba(34,211,238,.35);}
-  body[data-theme="3"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:14px;}
   body[data-theme="3"] .card,
   body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
   body[data-theme="3"] .card h2,
   body[data-theme="3"] .table-card h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:#fff;}
-  body[data-theme="3"] .legend-row{color:var(--ink-soft);}
   body[data-theme="3"] .mini-bar{background:var(--line);}
   body[data-theme="3"] .mini-bar i{background:var(--accent);}
   body[data-theme="3"] .mini-bar.hsc i{background:var(--accent2);}
@@ -215,7 +201,6 @@
   body[data-theme="3"] tr.total-row td{font-weight:700;background:#17233B;box-shadow:inset 0 1px 0 var(--accent);}
   body[data-theme="3"] .footer-note{color:var(--ink-soft);}
   body[data-theme="3"] .error-box{background:#3B1418;border:1px solid var(--bad);color:#FCA5A5;}
-  body[data-theme="3"] .state{color:var(--ink-soft);}
 
   /* =========================================================
      থিম ৪ — গ্লাসমরফিজম
@@ -238,12 +223,10 @@
   body[data-theme="4"] .kpi{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:0 8px 24px rgba(99,102,241,.12);}
   body[data-theme="4"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
   body[data-theme="4"] .kpi .num{font-family:"Inter",sans-serif;font-size:24px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  body[data-theme="4"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:14px;}
   body[data-theme="4"] .card,
   body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
   body[data-theme="4"] .card h2,
   body[data-theme="4"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
-  body[data-theme="4"] .legend-row{color:var(--ink-soft);}
   body[data-theme="4"] .mini-bar{background:rgba(30,27,58,.12);}
   body[data-theme="4"] .mini-bar i{background:var(--accent);}
   body[data-theme="4"] .mini-bar.hsc i{background:var(--accent2);}
@@ -254,7 +237,6 @@
   body[data-theme="4"] tr.total-row td{font-weight:700;background:rgba(255,255,255,.5);}
   body[data-theme="4"] .footer-note{color:var(--ink-soft);}
   body[data-theme="4"] .error-box{background:rgba(239,68,68,.12);border:1px solid var(--bad);color:#B91C1C;border-radius:12px;}
-  body[data-theme="4"] .state{color:var(--ink-soft);}
 
   /* =========================================================
      থিম ৫ — কর্পোরেট এক্সিকিউটিভ
@@ -273,13 +255,10 @@
   body[data-theme="5"] .kpi:last-child{border-right:none;}
   body[data-theme="5"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-soft);margin-bottom:9px;font-weight:600;}
   body[data-theme="5"] .kpi .num{font-family:"Playfair Display",serif;font-size:23px;font-weight:700;color:var(--accent);}
-  body[data-theme="5"] .panels{display:grid;grid-template-columns:1.3fr 1fr;gap:0;margin-bottom:0;border:1px solid var(--line);border-top:none;}
-  body[data-theme="5"] .card{background:var(--panel);border-right:1px solid var(--line);padding:20px;}
-  body[data-theme="5"] .panels .card:last-child{border-right:none;}
-  body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);border-top:none;padding:20px;}
+  body[data-theme="5"] .card{background:var(--panel);border:1px solid var(--line);padding:20px;}
+  body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);padding:20px;}
   body[data-theme="5"] .card h2,
   body[data-theme="5"] .table-card h2{font-family:"Playfair Display",serif;font-weight:600;font-size:15px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--ink);}
-  body[data-theme="5"] .legend-row{color:var(--ink-soft);}
   body[data-theme="5"] .mini-bar{background:var(--line);border-radius:0;}
   body[data-theme="5"] .mini-bar i{background:var(--accent);}
   body[data-theme="5"] .mini-bar.hsc i{background:var(--accent2);}
@@ -290,7 +269,6 @@
   body[data-theme="5"] tr.total-row td{font-weight:700;background:#F1EFE8;border-top:2px solid var(--accent2);}
   body[data-theme="5"] .footer-note{color:var(--ink-soft);}
   body[data-theme="5"] .error-box{background:#FBEAE7;border:1px solid var(--bad);color:var(--bad);}
-  body[data-theme="5"] .state{color:var(--ink-soft);}
 </style>
 </head>
 <body data-theme="1">
@@ -321,21 +299,6 @@
   <div id="errorArea"></div>
   <div id="kpiRow" class="kpi-row"></div>
 
-  <div class="panels">
-    <div class="card">
-      <h2>প্রোগ্রামভিত্তিক বোর্ড ডাটা সংগ্রহের হার</h2>
-      <canvas id="barChart" height="230"></canvas>
-      <div class="legend-row">
-        <span><i class="sw" id="legendSsc"></i> SSC সংগৃহীত %</span>
-        <span><i class="sw" id="legendHsc"></i> HSC সংগৃহীত %</span>
-      </div>
-    </div>
-    <div class="card">
-      <h2>সামগ্রিক অবস্থা (Yes বনাম No)</h2>
-      <canvas id="overallChart" height="230"></canvas>
-    </div>
-  </div>
-
   <div id="programSection"></div>
 
   <div class="footer-note">প্রতি <span id="refreshMin"></span> মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>
@@ -343,15 +306,14 @@
 
 <script>
 document.getElementById("refreshMin").textContent = CONFIG.REFRESH_MINUTES;
-let barChartInst = null, overallChartInst = null;
 let lastRows = null, lastTotals = null;
 
 const THEME_PALETTE = {
-  1: { ssc:"#1B2A4A", hsc:"#8A6FB0", yes:"#1E7A4C", no:"#E3DFD3", grid:"#EEE9DD", text:"#3A4A6B" },
-  2: { ssc:"#2563EB", hsc:"#38BDF8", yes:"#16A34A", no:"#E2E8F0", grid:"#EEF2F7", text:"#64748B" },
-  3: { ssc:"#22D3EE", hsc:"#C084FC", yes:"#34D399", no:"#1E293B", grid:"#1E293B", text:"#94A3B8" },
-  4: { ssc:"#818CF8", hsc:"#F472B6", yes:"#10B981", no:"rgba(30,27,58,.12)", grid:"rgba(30,27,58,.08)", text:"#5B5580" },
-  5: { ssc:"#1B2A4A", hsc:"#8C1D2B", yes:"#2F6F4E", no:"#D9D5C9", grid:"#E4E1D8", text:"#6B7280" }
+  1: { ssc:"#1B2A4A", hsc:"#8A6FB0" },
+  2: { ssc:"#2563EB", hsc:"#38BDF8" },
+  3: { ssc:"#22D3EE", hsc:"#C084FC" },
+  4: { ssc:"#818CF8", hsc:"#F472B6" },
+  5: { ssc:"#1B2A4A", hsc:"#8C1D2B" }
 };
 
 function currentTheme(){ return document.body.getAttribute("data-theme"); }
@@ -453,25 +415,7 @@ function parseAndRender(grid){
 function renderAll(totalLabel){
   if(!lastRows || !lastTotals) return;
   renderKPIs(lastTotals, lastRows.length, totalLabel || "মোট আবেদন");
-  updateLegendSwatches();
-
-  if(typeof Chart === "undefined"){
-    document.getElementById("barChart").outerHTML = '<div class="state">চার্ট লাইব্রেরি লোড হয়নি (সম্ভবত Ad-blocker এটি ব্লক করেছে)। নিচের টেবিলে সম্পূর্ণ ডাটা দেখুন।</div>';
-    document.getElementById("overallChart").outerHTML = '<div class="state">চার্ট লাইব্রেরি লোড হয়নি।</div>';
-  } else {
-    try{ renderBarChart(lastRows); }catch(e){ console.error(e); }
-    try{ renderOverallChart(lastTotals); }catch(e){ console.error(e); }
-  }
-
   renderProgramSection(lastRows, lastTotals);
-}
-
-function updateLegendSwatches(){
-  const p = THEME_PALETTE[currentTheme()];
-  const ssc = document.getElementById("legendSsc");
-  const hsc = document.getElementById("legendHsc");
-  if(ssc) ssc.style.background = p.ssc;
-  if(hsc) hsc.style.background = p.hsc;
 }
 
 function renderKPIs(t, programCount, totalLabel){
@@ -490,53 +434,6 @@ function renderKPIs(t, programCount, totalLabel){
   document.getElementById("kpiRow").innerHTML = kpis.map(k =>
     `<div class="kpi"><div class="eyebrow">${k.label}</div><div class="num">${k.value}</div></div>`
   ).join("");
-}
-
-function renderBarChart(rows){
-  const p = THEME_PALETTE[currentTheme()];
-  const labels = rows.map(r => r.program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)"));
-  const sscPcts = rows.map(r => pct(r.sscYes, r.total));
-  const hscPcts = rows.map(r => pct(r.hscYes, r.total));
-
-  if(barChartInst) barChartInst.destroy();
-  barChartInst = new Chart(document.getElementById("barChart"), {
-    type:"bar",
-    data:{ labels, datasets:[
-      { label:"SSC", data: sscPcts, backgroundColor:p.ssc, borderRadius:3, maxBarThickness:18 },
-      { label:"HSC", data: hscPcts, backgroundColor:p.hsc, borderRadius:3, maxBarThickness:18 }
-    ]},
-    options:{
-      indexAxis:"y",
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: (ctx) => ctx.dataset.label + ": " + ctx.parsed.x + "%" } } },
-      scales:{
-        x:{ beginAtZero:true, max:100, grid:{color:p.grid}, ticks:{ callback:(v)=>v+"%", color:p.text } },
-        y:{ grid:{display:false}, ticks:{ color:p.text } }
-      }
-    }
-  });
-}
-
-function renderOverallChart(t){
-  const p = THEME_PALETTE[currentTheme()];
-  const labels = ["SSC সংগ্রহ", "HSC সংগ্রহ", "SSC সিঙ্ক", "HSC সিঙ্ক"];
-  const yes = [t.sscYes, t.hscYes, t.sscSyncYes, t.hscSyncYes];
-  const no = [t.sscNo, t.hscNo, t.sscSyncNo, t.hscSyncNo];
-
-  if(overallChartInst) overallChartInst.destroy();
-  overallChartInst = new Chart(document.getElementById("overallChart"), {
-    type:"bar",
-    data:{ labels, datasets:[
-      { label:"Yes", data: yes, backgroundColor:p.yes, borderRadius:3, maxBarThickness:26, stack:"s" },
-      { label:"No", data: no, backgroundColor:p.no, borderRadius:3, maxBarThickness:26, stack:"s" }
-    ]},
-    options:{
-      plugins:{ legend:{ position:"bottom", labels:{boxWidth:12, font:{size:11.5}, color:p.text} } },
-      scales:{
-        x:{ stacked:true, grid:{display:false}, ticks:{font:{size:11}, color:p.text} },
-        y:{ stacked:true, beginAtZero:true, grid:{color:p.grid}, ticks:{ color:p.text } }
-      }
-    }
-  });
 }
 
 function tableCardHtml(rows, totals, heading){
