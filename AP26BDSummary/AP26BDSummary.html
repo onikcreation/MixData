@@ -47,6 +47,8 @@
   thead th.left{text-align:left;}
   tbody td{padding:9px 8px;text-align:center;}
   tbody td.left{text-align:left;font-weight:600;}
+  .ledger-top{text-align:center;}
+  .sub{justify-content:center;}
   .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
   .dot-live{animation:pulse 2s infinite;}
@@ -311,8 +313,8 @@
 </div>
 
 <div class="ledger-top">
-  <h1>Admission 2026 — বোর্ড ডাটা সিঙ্ক্রোনাইজেশন সামারি</h1>
-  <div class="sub"><span class="dot dot-live"></span> <span id="lastUpdated">লোড হচ্ছে…</span></div>
+  <h1>Admission 2026 — Board Data Synchronization Summary</h1>
+  <div class="sub"><span class="dot dot-live"></span> <span id="lastUpdated">Loading…</span></div>
 </div>
 
 <div class="wrap">
@@ -377,7 +379,7 @@ async function loadData(){
     const grid = Papa.parse(csvText, { header:false, skipEmptyLines:false }).data;
     parseAndRender(grid);
     document.getElementById("errorArea").innerHTML = "";
-    document.getElementById("lastUpdated").textContent = "সবশেষ আপডেট: " + new Date().toLocaleString("bn-BD");
+    document.getElementById("lastUpdated").textContent = "Last Updated: " + new Date().toLocaleString("en-US");
   }catch(err){
     showError("ডাটা লোড করা যায়নি। শীটের শেয়ারিং/পাবলিশ সেটিংস যাচাই করুন। (" + err.message + ")");
   }
