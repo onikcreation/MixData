@@ -30,10 +30,10 @@
   table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
   thead th{text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;padding:8px 8px;white-space:nowrap;}
   thead th.left{text-align:left;}
-  tbody td{padding:16px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
+  tbody td{padding:8px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
   tbody td.left{text-align:left;}
   .table-card h2{text-align:center;}
-  .ledger-top{text-align:center;}
+  .ledger-top{text-align:center;position:relative;}
 
   /* ============ KPI সেকশন — মিডিল এলাইন + সংখ্যা এক লাইনে + স্ক্রলে ফিক্সড ============ */
   .kpi-row{position:sticky;top:0;z-index:90;background:var(--paper, var(--panel));padding:12px 0 10px;border-bottom:1px solid var(--line);}
@@ -392,6 +392,10 @@ function renderAll(totalLabel){
   renderProgramSection(lastRows, lastTotals);
 }
 
+function eyebrowHtml(label){
+  const m = /^(.*?)\s*(\([^)]*\)\s*)$/.exec(label);
+  return m ? `${m[1]}<br>${m[2].trim()}` : label;
+}
 function renderKPIs(t, totalLabel){
   const sscPct = pct(t.sscYes, t.total);
   const hscPct = pct(t.hscYes, t.total);
@@ -406,7 +410,7 @@ function renderKPIs(t, totalLabel){
     {label:"HSC সিঙ্ক্রোনাইজড", value: countPct(t.hscSyncYes, hscSyncPct)}
   ];
   document.getElementById("kpiRow").innerHTML = kpis.map(k =>
-    `<div class="kpi"><div class="eyebrow">${k.label}</div><div class="num">${k.value}</div></div>`
+    `<div class="kpi"><div class="eyebrow">${eyebrowHtml(k.label)}</div><div class="num">${k.value}</div></div>`
   ).join("");
 }
 
