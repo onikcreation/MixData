@@ -24,22 +24,21 @@
   .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
   .footer-note{text-align:center;font-size:12px;margin-top:22px;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
-  .bar-cell{display:flex;align-items:center;gap:6px;justify-content:center;}
-  .mini-bar{width:52px;height:6px;border-radius:3px;overflow:hidden;}
-  .mini-bar i{display:block;height:100%;}
-  .pct{font-size:11.5px;min-width:32px;text-align:right;}
-  .stat-count{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+  .stat-count{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:3px;letter-spacing:.2px;}
+  .stat-pct{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;}
   .table-scroll{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
   thead th{text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:8px 8px;white-space:nowrap;}
   thead th.left{text-align:left;}
   tbody td{padding:16px 8px;text-align:center;}
   tbody td.left{text-align:left;font-weight:600;}
-  .ledger-top{text-align:center;position:sticky;top:0;z-index:80;}
-  .sub{justify-content:center;}
-  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
-  .dot-live{animation:pulse 2s infinite;}
+  .ledger-top{text-align:center;}
+
+  /* ============ KPI সেকশন — মিডিল এলাইন + সংখ্যা এক লাইনে + স্ক্রলে ফিক্সড ============ */
+  .kpi-row{position:sticky;top:0;z-index:90;background:var(--paper, var(--panel));padding:12px 0 10px;border-bottom:1px solid var(--line);}
+  .kpi{text-align:center;}
+  .kpi .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi .num{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
   /* ============ ফ্লোটিং থিম/প্যালেট কাস্টমাইজার (থিম-নিরপেক্ষ) ============ */
   .theme-fab{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
@@ -86,12 +85,12 @@
   .race-group:last-child{border-bottom:none;}
   .race-title{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px;}
   .race-title .race-total{font-size:11px;font-weight:500;color:var(--ink-soft);}
-  .race-row{display:grid;grid-template-columns:36px 1fr 40px;align-items:center;gap:8px;margin-bottom:5px;}
+  .race-row{display:grid;grid-template-columns:72px 1fr 96px;align-items:center;gap:8px;margin-bottom:5px;}
   .race-row:last-child{margin-bottom:0;}
-  .race-label{font-size:10.5px;color:var(--ink-soft);font-weight:600;}
+  .race-label{font-size:10.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;}
   .race-track{height:9px;border-radius:5px;background:var(--line);overflow:hidden;}
   .race-track i{display:block;height:100%;border-radius:5px;}
-  .race-pct{font-size:11px;color:var(--ink-soft);text-align:right;}
+  .race-pct{font-size:11px;color:var(--ink-soft);text-align:right;white-space:nowrap;}
 
   /* =========================================================
      থিম ১ — ক্লাসিক লেজার (আগের ডিজাইন)
@@ -105,19 +104,15 @@
   body[data-theme="1"] .ledger-top{background:var(--ink);color:#fff;padding:16px 24px 13px;overflow:hidden;}
   body[data-theme="1"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--gold) 0 18px, transparent 18px 26px);}
   body[data-theme="1"] .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(16px,2.4vw,21px);margin:0 0 2px;}
-  body[data-theme="1"] .sub{color:var(--gold-soft);font-size:13.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  body[data-theme="1"] .dot{background:var(--good);}
-  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:26px;}
+  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:26px;}
   body[data-theme="1"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 14px;position:relative;}
   body[data-theme="1"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
-  body[data-theme="1"] .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:26px;font-weight:700;color:var(--ink);}
+  body[data-theme="1"] .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:21px;font-weight:700;color:var(--ink);}
   body[data-theme="1"] .kpi::before{content:"";position:absolute;top:0;left:18px;right:18px;height:3px;background:var(--gold);border-radius:0 0 3px 3px;}
   body[data-theme="1"] .card,
   body[data-theme="1"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
   body[data-theme="1"] .card h2,
   body[data-theme="1"] .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
-  body[data-theme="1"] .mini-bar{background:var(--line);}
-  body[data-theme="1"] .pct{color:var(--ink-soft);}
   body[data-theme="1"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
   body[data-theme="1"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="1"] tbody tr:hover{background:#FAF8F2;}
@@ -135,18 +130,14 @@
   }
   body[data-theme="2"] .ledger-top{background:#fff;color:var(--ink);padding:15px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="2"] .ledger-top h1{font-family:"Inter","Hind Siliguri",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
-  body[data-theme="2"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  body[data-theme="2"] .dot{background:var(--good);}
-  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:22px;}
+  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:22px;}
   body[data-theme="2"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
-  body[data-theme="2"] .kpi .num{font-family:"Inter",sans-serif;font-size:25px;font-weight:700;color:var(--accent);}
+  body[data-theme="2"] .kpi .num{font-family:"Inter",sans-serif;font-size:20px;font-weight:700;color:var(--accent);}
   body[data-theme="2"] .card,
   body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .card h2,
   body[data-theme="2"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
-  body[data-theme="2"] .mini-bar{background:var(--line);}
-  body[data-theme="2"] .pct{color:var(--ink-soft);}
   body[data-theme="2"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
   body[data-theme="2"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="2"] tbody tr:hover{background:#F1F5F9;}
@@ -165,18 +156,14 @@
   body[data-theme="3"] .ledger-top{background:linear-gradient(180deg,#0B1120,#131B2E);color:#fff;padding:16px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="3"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
   body[data-theme="3"] .ledger-top h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;}
-  body[data-theme="3"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  body[data-theme="3"] .dot{background:var(--accent);box-shadow:0 0 8px var(--accent);}
-  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
+  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:24px;}
   body[data-theme="3"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
   body[data-theme="3"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
-  body[data-theme="3"] .kpi .num{font-family:"Space Grotesk",sans-serif;font-size:25px;font-weight:700;color:var(--accent);text-shadow:0 0 14px rgba(34,211,238,.35);}
+  body[data-theme="3"] .kpi .num{font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:700;color:var(--accent);text-shadow:0 0 14px rgba(34,211,238,.35);}
   body[data-theme="3"] .card,
   body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
   body[data-theme="3"] .card h2,
   body[data-theme="3"] .table-card h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:#fff;}
-  body[data-theme="3"] .mini-bar{background:var(--line);}
-  body[data-theme="3"] .pct{color:var(--ink-soft);}
   body[data-theme="3"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
   body[data-theme="3"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="3"] tbody tr:hover{background:#1A2338;}
@@ -199,18 +186,14 @@
   }
   body[data-theme="4"] .ledger-top{background:rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.6);}
   body[data-theme="4"] .ledger-top h1{font-family:"Inter",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
-  body[data-theme="4"] .sub{color:var(--ink-soft);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  body[data-theme="4"] .dot{background:var(--good);}
-  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
+  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:24px;}
   body[data-theme="4"] .kpi{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:0 8px 24px rgba(99,102,241,.12);}
   body[data-theme="4"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
-  body[data-theme="4"] .kpi .num{font-family:"Inter",sans-serif;font-size:24px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  body[data-theme="4"] .kpi .num{font-family:"Inter",sans-serif;font-size:19px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
   body[data-theme="4"] .card,
   body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
   body[data-theme="4"] .card h2,
   body[data-theme="4"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
-  body[data-theme="4"] .mini-bar{background:rgba(30,27,58,.12);}
-  body[data-theme="4"] .pct{color:var(--ink-soft);}
   body[data-theme="4"] thead th{color:var(--ink-soft);border-bottom:1px solid rgba(30,27,58,.15);}
   body[data-theme="4"] tbody td{border-bottom:1px solid rgba(30,27,58,.08);}
   body[data-theme="4"] tbody tr:hover{background:rgba(255,255,255,.4);}
@@ -228,19 +211,15 @@
   }
   body[data-theme="5"] .ledger-top{background:#1B2A4A;color:#fff;padding:15px 24px;border-bottom:2px solid var(--accent2);}
   body[data-theme="5"] .ledger-top h1{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(15px,2.2vw,20px);margin:0 0 3px;}
-  body[data-theme="5"] .sub{color:#C7CEDD;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-transform:uppercase;letter-spacing:.4px;}
-  body[data-theme="5"] .dot{background:#9CA3AF;}
-  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;margin-bottom:26px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
+  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:0;margin-bottom:26px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
   body[data-theme="5"] .kpi{background:var(--panel);border-right:1px solid var(--line);padding:18px 18px 16px;position:relative;}
   body[data-theme="5"] .kpi:last-child{border-right:none;}
   body[data-theme="5"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-soft);margin-bottom:9px;font-weight:600;}
-  body[data-theme="5"] .kpi .num{font-family:"Playfair Display",serif;font-size:23px;font-weight:700;color:var(--accent);}
+  body[data-theme="5"] .kpi .num{font-family:"Playfair Display",serif;font-size:19px;font-weight:700;color:var(--accent);}
   body[data-theme="5"] .card{background:var(--panel);border:1px solid var(--line);padding:20px;}
   body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);padding:20px;}
   body[data-theme="5"] .card h2,
   body[data-theme="5"] .table-card h2{font-family:"Playfair Display",serif;font-weight:600;font-size:15px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--ink);}
-  body[data-theme="5"] .mini-bar{background:var(--line);border-radius:0;}
-  body[data-theme="5"] .pct{color:var(--ink-soft);}
   body[data-theme="5"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
   body[data-theme="5"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="5"] tbody tr:hover{background:#F7F6F2;}
@@ -253,7 +232,6 @@
 
 <div class="ledger-top">
   <h1>Admission 2026 — Board Data Synchronization Summary</h1>
-  <div class="sub"><span class="dot dot-live"></span> <span id="lastUpdated">Loading…</span></div>
 </div>
 
 <div class="wrap">
@@ -322,7 +300,6 @@ async function loadData(){
     const grid = Papa.parse(csvText, { header:false, skipEmptyLines:false }).data;
     parseAndRender(grid);
     document.getElementById("errorArea").innerHTML = "";
-    document.getElementById("lastUpdated").textContent = "Last Updated: " + new Date().toLocaleString("en-US");
   }catch(err){
     showError("ডাটা লোড করা যায়নি। শীটের শেয়ারিং/পাবলিশ সেটিংস যাচাই করুন। (" + err.message + ")");
   }
@@ -420,7 +397,7 @@ function renderKPIs(t, totalLabel){
 function tableCardHtml(rows, totals, heading, p){
   const statCell = (count, pctVal, color) => `<td>
       <div class="stat-count">${count.toLocaleString("en-US")}</div>
-      <div class="bar-cell"><div class="mini-bar"><i style="width:${pctVal}%;background:${color}"></i></div><span class="pct">${pctVal}%</span></div>
+      <div class="stat-pct" style="color:${color};background:${color}1F">${pctVal}%</div>
     </td>`;
   const rowHtml = (label, r, isTotal) => {
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
@@ -470,20 +447,25 @@ function cardGridHtml(rows, p){
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
     return `<div class="prog-card">
       <div class="prog-card-head"><span class="prog-card-sl">${r.sl}</span><span class="prog-card-name">${shortName(r.program)}</span></div>
-      <div class="prog-card-total"><b>${r.total.toLocaleString("en-US")}</b>মোট আবেদন</div>
+      <div class="prog-card-total"><b>${r.total.toLocaleString("en-US")}</b>মোট ডাটা</div>
       <div class="prog-ring-row">${ringHtml(sscP, p.ssc, "SSC")}${ringHtml(hscP, p.hsc, "HSC")}</div>
     </div>`;
   }).join("");
-  return `<div class="card"><h2>প্রোগ্রামভিত্তিক কার্ড ভিউ</h2><div class="prog-card-grid">${cards}</div></div>`;
+  return `<div class="card"><h2>প্রোগ্রামভিত্তিক ডাটা</h2><div class="prog-card-grid">${cards}</div></div>`;
 }
 
 function raceBarHtml(rows, p){
+  const barRow = (label, count, total, color) => {
+    const pctVal = pct(count, total);
+    return `<div class="race-row"><span class="race-label">${label}</span><div class="race-track"><i style="width:${pctVal}%;background:${color}"></i></div><span class="race-pct">${count.toLocaleString("en-US")} · ${pctVal}%</span></div>`;
+  };
   const groups = rows.map(r => {
-    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
     return `<div class="race-group">
       <div class="race-title"><span>${r.sl}. ${shortName(r.program)}</span><span class="race-total">মোট ${r.total.toLocaleString("en-US")}</span></div>
-      <div class="race-row"><span class="race-label">SSC</span><div class="race-track"><i style="width:${sscP}%;background:${p.ssc}"></i></div><span class="race-pct">${sscP}%</span></div>
-      <div class="race-row"><span class="race-label">HSC</span><div class="race-track"><i style="width:${hscP}%;background:${p.hsc}"></i></div><span class="race-pct">${hscP}%</span></div>
+      ${barRow("SSC এন্ট্রি", r.sscYes, r.total, p.ssc)}
+      ${barRow("SSC সিঙ্ক", r.sscSyncYes, r.total, p.ssc)}
+      ${barRow("HSC এন্ট্রি", r.hscYes, r.total, p.hsc)}
+      ${barRow("HSC সিঙ্ক", r.hscSyncYes, r.total, p.hsc)}
     </div>`;
   }).join("");
   return `<div class="card"><h2>SSC ও HSC ডাটা তুলনা</h2>${groups}</div>`;
@@ -491,7 +473,7 @@ function raceBarHtml(rows, p){
 
 function renderProgramSection(rows, totals){
   const p = getActivePalette();
-  const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত তালিকা", p)
+  const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত সামারি", p)
     + cardGridHtml(rows, p)
     + raceBarHtml(rows, p);
   document.getElementById("programSection").innerHTML = html;
