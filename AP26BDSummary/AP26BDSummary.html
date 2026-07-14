@@ -22,7 +22,6 @@
   body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;display:flex;flex-direction:column;overflow:hidden;}
 
   .top-wrap{max-width:1180px;margin:0 auto;padding:10px 20px 0;width:100%;flex:0 0 auto;}
-  .footer-note{text-align:center;font-size:12px;margin-top:12px;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
   .stat-count{margin-bottom:2px;}
   .stat-pct{font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:20px;display:inline-block;}
@@ -114,7 +113,6 @@
   body[data-theme="1"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="1"] tbody tr:hover{background:#FAF8F2;}
   body[data-theme="1"] tr.total-row td{background:#FBF3E4;border-top:2px solid var(--gold);}
-  body[data-theme="1"] .footer-note{color:var(--ink-soft);}
   body[data-theme="1"] .error-box{background:#F7E5E1;border:1px solid var(--bad);color:var(--bad);}
 
   /* =========================================================
@@ -139,7 +137,6 @@
   body[data-theme="2"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="2"] tbody tr:hover{background:#F1F5F9;}
   body[data-theme="2"] tr.total-row td{background:#EFF6FF;}
-  body[data-theme="2"] .footer-note{color:var(--ink-soft);}
   body[data-theme="2"] .error-box{background:#FEF2F2;border:1px solid var(--bad);color:var(--bad);border-radius:10px;}
 
   /* =========================================================
@@ -165,7 +162,6 @@
   body[data-theme="3"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="3"] tbody tr:hover{background:#1A2338;}
   body[data-theme="3"] tr.total-row td{background:#17233B;box-shadow:inset 0 1px 0 var(--accent);}
-  body[data-theme="3"] .footer-note{color:var(--ink-soft);}
   body[data-theme="3"] .error-box{background:#3B1418;border:1px solid var(--bad);color:#FCA5A5;}
 
   /* =========================================================
@@ -195,7 +191,6 @@
   body[data-theme="4"] tbody td{border-bottom:1px solid rgba(30,27,58,.08);}
   body[data-theme="4"] tbody tr:hover{background:rgba(255,255,255,.4);}
   body[data-theme="4"] tr.total-row td{background:rgba(255,255,255,.5);}
-  body[data-theme="4"] .footer-note{color:var(--ink-soft);}
   body[data-theme="4"] .error-box{background:rgba(239,68,68,.12);border:1px solid var(--bad);color:#B91C1C;border-radius:12px;}
 
   /* =========================================================
@@ -221,7 +216,6 @@
   body[data-theme="5"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="5"] tbody tr:hover{background:#F7F6F2;}
   body[data-theme="5"] tr.total-row td{background:#F1EFE8;border-top:2px solid var(--accent2);}
-  body[data-theme="5"] .footer-note{color:var(--ink-soft);}
   body[data-theme="5"] .error-box{background:#FBEAE7;border:1px solid var(--bad);color:var(--bad);}
 </style>
 </head>
@@ -469,8 +463,7 @@ function raceBarHtml(rows, p){
   const online = rows.filter(r => r.program.includes("(Online)"));
   const colHtml = (label, list) => `<div class="race-col"><div class="race-col-head">${label}</div>${list.map(groupHtml).join("")}</div>`;
 
-  return `<div class="card"><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>
-    <div class="footer-note">প্রতি ${CONFIG.REFRESH_MINUTES} মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>`;
+  return `<div class="card"><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>`;
 }
 
 function renderProgramSection(rows, totals){
