@@ -7,7 +7,7 @@
 
 <script>
   const CONFIG = {
-    CSV_URL: "https://docs.google.com/spreadsheets/d/1sGCJFSykLxhnDT_bj91esMpkqt9IFzTO1-SaW3e7XXo/gviz/tq?tqx=out:csv&gid=919747679",
+    CSV_URL: "https://docs.google.com/spreadsheets/d/1sGCJFSykLxhnDT_bj91esMpkqt9IFzTO1-SaW3e7XXo/export?format=csv&gid=919747679",
     REFRESH_MINUTES: 5
   };
 </script>
@@ -31,6 +31,7 @@
   thead th.left{text-align:left;}
   tbody td{padding:5px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
   tbody td.left{text-align:left;}
+  td.indent{padding-left:26px;}
   .table-card h2{text-align:center;}
   .ledger-top{text-align:center;position:relative;flex:0 0 auto;}
 
@@ -44,6 +45,16 @@
   .scroll-viewport{flex:1 1 auto;min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth;}
   .snap-section{height:100%;overflow:hidden;display:flex;scroll-snap-align:start;scroll-snap-stop:always;}
   .snap-section .wrap{max-width:1180px;width:100%;margin:auto;padding:10px 20px;}
+  .snap-section .wrap.fill{margin:0 auto;height:100%;display:flex;flex-direction:column;}
+
+  /* বড় (Branch/Branch-Program Wise) টেবিলের নিজস্ব ভার্টিক্যাল স্ক্রল + sticky header */
+  .table-card.scroll-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;}
+  .table-card.scroll-body .table-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;}
+  .table-card.scroll-body thead th{position:sticky;top:0;background:var(--panel);z-index:2;}
+
+  /* Branch & Program Wise গ্রুপ-হেডার রো */
+  .group-row td{background:var(--line);font-weight:700;padding:9px 8px;}
+  .group-total{font-weight:500;font-size:11px;color:var(--ink-soft);margin-left:10px;}
 
   .snap-dots{position:fixed;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:150;}
   .snap-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-soft, #94A3B8);background:transparent;padding:0;cursor:pointer;opacity:.5;transition:all .2s ease;}
@@ -68,6 +79,11 @@
   input[type=color].tp-color-input::-webkit-color-swatch{border:none;border-radius:50%;}
   .tp-reset-btn{width:100%;margin-top:12px;padding:7px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer;font-weight:600;}
   .tp-reset-btn:hover{background:var(--line);}
+
+  /* ============ ফ্লোটিং "View By" পিকার (থিম-পিকারের প্রতিসম, বিপরীত কোনায়) ============ */
+  .view-fab{position:fixed;left:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
+  .view-panel{position:fixed;left:22px;bottom:84px;width:210px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
+  .view-panel.open{display:block;}
 
   /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
   .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
@@ -240,6 +256,16 @@
   <button class="snap-dot" data-snap-idx="1" aria-label="SSC ও HSC ডাটা তুলনা" title="SSC ও HSC ডাটা তুলনা"></button>
 </div>
 
+<button class="view-fab" id="viewFab" aria-label="View by" title="View By">🧭</button>
+<div class="view-panel" id="viewPanel">
+  <div class="tp-label">View By</div>
+  <div id="viewList">
+    <div class="tp-theme-row" data-view-pick="program">Program Wise</div>
+    <div class="tp-theme-row" data-view-pick="branch">Branch Wise</div>
+    <div class="tp-theme-row" data-view-pick="branchProgram">Branch Program Wise</div>
+  </div>
+</div>
+
 <button class="theme-fab" id="themeFab" aria-label="Theme settings" title="Theme settings">🎨</button>
 <div class="theme-panel" id="themePanel">
   <div class="tp-label">Theme</div>
@@ -254,7 +280,10 @@
 </div>
 
 <script>
-let lastRows = null, lastTotals = null;
+let programRows = null, programTotals = null, programTotalLabel = "মোট আবেদন";
+let branchRows = null, branchTotals = null;
+let branchProgramRows = null, branchProgramTotals = null;
+let currentView = localStorage.getItem("ap26bd_view") || "program";
 
 const THEME_PALETTE = {
   1: { ssc:"#1B2A4A", hsc:"#8A6FB0" },
@@ -313,59 +342,64 @@ async function loadData(){
   }
 }
 
-function parseAndRender(grid){
-  let slRow = -1, slCol = -1;
+/* ============ শীটে "Sl" লেখা প্রতিটা টেবিলের হেডার-পজিশন খুঁজে বের করা (Program Wise / Branch Wise / Branch & Program Wise — এই তিনটা টেবিল একই শীটে পরপর থাকে) ============ */
+function findSlPositions(grid){
+  const positions = [];
   for(let r=0; r<grid.length; r++){
     for(let c=0; c<grid[r].length; c++){
       const v = (grid[r][c] || "").toString().trim().toLowerCase();
-      if(v === "sl" || v === "sl."){ slRow = r; slCol = c; break; }
+      if(v === "sl" || v === "sl."){ positions.push({row:r, col:c}); break; }
     }
-    if(slRow !== -1) break;
   }
-  if(slRow === -1){ showError("শীটের হেডার কাঠামো চেনা যায়নি (Sl কলাম পাওয়া যায়নি)।"); return; }
+  return positions;
+}
 
-  const programCol = slCol + 1;
-  const totalCol = slCol + 2;
-  const sscYesCol = slCol + 3, sscNoCol = slCol + 4, sscSyncYesCol = slCol + 5, sscSyncNoCol = slCol + 6;
-  const hscYesCol = slCol + 7, hscNoCol = slCol + 8, hscSyncYesCol = slCol + 9, hscSyncNoCol = slCol + 10;
-  const totalLabel = (grid[slRow][totalCol] || "মোট আবেদন").toString().trim();
+function statsFromRow(row, totalCol){
+  const sscYesCol=totalCol+1, sscNoCol=totalCol+2, sscSyncYesCol=totalCol+3, sscSyncNoCol=totalCol+4;
+  const hscYesCol=totalCol+5, hscNoCol=totalCol+6, hscSyncYesCol=totalCol+7, hscSyncNoCol=totalCol+8;
+  return {
+    total: num(row[totalCol]),
+    sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
+    sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
+    hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
+    hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
+  };
+}
 
+/* labelColCount=1 → Sl,Program বা Sl,Branch (Program Wise / Branch Wise); labelColCount=2 → Sl,Branch,Program (Branch & Program Wise) */
+function parseSubTable(grid, slRow, slCol, labelColCount){
+  const label1Col = slCol + 1;
+  const label2Col = slCol + 2;
+  const totalCol = slCol + 1 + labelColCount;
   const rows = [];
-  let totals = null;
-  let blankStreak = 0;
+  let totals = null, blankStreak = 0;
 
   for(let r = slRow + 1; r < grid.length; r++){
     const row = grid[r] || [];
-    const programText = (row[programCol] || "").toString().trim();
     const slText = (row[slCol] || "").toString().trim();
+    const label1 = (row[label1Col] || "").toString().trim();
+    const label2 = labelColCount === 2 ? (row[label2Col] || "").toString().trim() : "";
 
-    if(/total/i.test(programText) || /total/i.test(slText)){
-      totals = {
-        total: num(row[totalCol]),
-        sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
-        sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
-        hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
-        hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
-      };
+    const isTotalRow = /total/i.test(slText) ||
+      (!slText && !label1 && (labelColCount < 2 || !label2) && num(row[totalCol]) > 0);
+
+    if(isTotalRow){
+      totals = statsFromRow(row, totalCol);
       break;
     }
-    if(/^\d+$/.test(slText) && programText){
-      rows.push({
-        sl: slText, program: programText, total: num(row[totalCol]),
-        sscYes: num(row[sscYesCol]), sscNo: num(row[sscNoCol]),
-        sscSyncYes: num(row[sscSyncYesCol]), sscSyncNo: num(row[sscSyncNoCol]),
-        hscYes: num(row[hscYesCol]), hscNo: num(row[hscNoCol]),
-        hscSyncYes: num(row[hscSyncYesCol]), hscSyncNo: num(row[hscSyncNoCol])
-      });
+    if(/^\d+$/.test(slText) && label1){
+      const stats = statsFromRow(row, totalCol);
+      rows.push({ sl:slText, label1, label2, total:stats.total,
+        sscYes:stats.sscYes, sscNo:stats.sscNo, sscSyncYes:stats.sscSyncYes, sscSyncNo:stats.sscSyncNo,
+        hscYes:stats.hscYes, hscNo:stats.hscNo, hscSyncYes:stats.hscSyncYes, hscSyncNo:stats.hscSyncNo });
       blankStreak = 0;
     } else {
       blankStreak++;
-      if(blankStreak > 5) break;
+      if(blankStreak > 8) break;
     }
   }
 
-  if(!rows.length){ showError("কোনো প্রোগ্রামের ডাটা পাওয়া যায়নি।"); return; }
-  if(!totals){
+  if(!totals && rows.length){
     totals = rows.reduce((a,r) => ({
       total:a.total+r.total, sscYes:a.sscYes+r.sscYes, sscNo:a.sscNo+r.sscNo,
       sscSyncYes:a.sscSyncYes+r.sscSyncYes, sscSyncNo:a.sscSyncNo+r.sscSyncNo,
@@ -374,14 +408,50 @@ function parseAndRender(grid){
     }), {total:0,sscYes:0,sscNo:0,sscSyncYes:0,sscSyncNo:0,hscYes:0,hscNo:0,hscSyncYes:0,hscSyncNo:0});
   }
 
-  lastRows = rows; lastTotals = totals;
-  renderAll(totalLabel);
+  return { rows, totals, totalCol };
 }
 
-function renderAll(totalLabel){
-  if(!lastRows || !lastTotals) return;
-  renderKPIs(lastTotals, totalLabel || "মোট আবেদন");
-  renderProgramSection(lastRows, lastTotals);
+function parseAndRender(grid){
+  const slPositions = findSlPositions(grid);
+  if(!slPositions.length){ showError("শীটের হেডার কাঠামো চেনা যায়নি (Sl কলাম পাওয়া যায়নি)।"); return; }
+
+  const t1 = parseSubTable(grid, slPositions[0].row, slPositions[0].col, 1);
+  if(!t1.rows.length){ showError("কোনো প্রোগ্রামের ডাটা পাওয়া যায়নি।"); return; }
+  programRows = t1.rows.map(r => ({ sl:r.sl, program:r.label1, total:r.total,
+    sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
+    hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo }));
+  programTotals = t1.totals;
+  programTotalLabel = (grid[slPositions[0].row][t1.totalCol] || "মোট আবেদন").toString().trim();
+
+  branchRows = null; branchTotals = null;
+  if(slPositions[1]){
+    const t2 = parseSubTable(grid, slPositions[1].row, slPositions[1].col, 1);
+    if(t2.rows.length){
+      branchRows = t2.rows.map(r => ({ sl:r.sl, branch:r.label1, total:r.total,
+        sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
+        hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo }));
+      branchTotals = t2.totals;
+    }
+  }
+
+  branchProgramRows = null; branchProgramTotals = null;
+  if(slPositions[2]){
+    const t3 = parseSubTable(grid, slPositions[2].row, slPositions[2].col, 2);
+    if(t3.rows.length){
+      branchProgramRows = t3.rows.map(r => ({ sl:r.sl, branch:r.label1, program:r.label2, total:r.total,
+        sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
+        hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo }));
+      branchProgramTotals = t3.totals;
+    }
+  }
+
+  renderAll();
+}
+
+function renderAll(){
+  if(!programRows || !programTotals) return;
+  renderKPIs(programTotals, programTotalLabel || "মোট আবেদন");
+  renderDetailSection();
 }
 
 function eyebrowHtml(label){
@@ -406,11 +476,14 @@ function renderKPIs(t, totalLabel){
   ).join("");
 }
 
-function tableCardHtml(rows, totals, p){
-  const statCell = (count, pctVal, color) => `<td>
+function statCellHtml(count, pctVal, color){
+  return `<td>
       <div class="stat-count">${count.toLocaleString("en-US")}</div>
       <div class="stat-pct" style="color:${color};background:${color}1F">${pctVal}%</div>
     </td>`;
+}
+
+function tableCardHtml(rows, totals, p, labelHeader, labelKey, scrollable){
   const rowHtml = (label, r, isTotal) => {
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
     const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
@@ -418,21 +491,81 @@ function tableCardHtml(rows, totals, p){
       <td class="left">${isTotal ? '' : r.sl}</td>
       <td class="left">${label}</td>
       <td>${r.total.toLocaleString("en-US")}</td>
-      ${statCell(r.sscYes, sscP, p.ssc)}
-      ${statCell(r.sscSyncYes, sscSyncP, p.ssc)}
-      ${statCell(r.hscYes, hscP, p.hsc)}
-      ${statCell(r.hscSyncYes, hscSyncP, p.hsc)}
+      ${statCellHtml(r.sscYes, sscP, p.ssc)}
+      ${statCellHtml(r.sscSyncYes, sscSyncP, p.ssc)}
+      ${statCellHtml(r.hscYes, hscP, p.hsc)}
+      ${statCellHtml(r.hscSyncYes, hscSyncP, p.hsc)}
     </tr>`;
   };
-  let bodyHtml = rows.map(r => rowHtml(r.program, r, false)).join("");
+  let bodyHtml = rows.map(r => rowHtml(r[labelKey], r, false)).join("");
   bodyHtml += rowHtml("সর্বমোট", totals, true);
-  return `<div class="table-card">
+  return `<div class="table-card${scrollable ? ' scroll-body' : ''}">
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
             <th class="left">Sl</th>
-            <th class="left">Program</th>
+            <th class="left">${labelHeader}</th>
+            <th>মোট ডাটা</th>
+            <th>SSC সংগ্রহ</th>
+            <th>SSC সিঙ্ক</th>
+            <th>HSC সংগ্রহ</th>
+            <th>HSC সিঙ্ক</th>
+          </tr>
+        </thead>
+        <tbody>${bodyHtml}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+/* Branch & Program Wise — শাখা অনুযায়ী গ্রুপ করে দেখায় (প্রতিটা শাখার নিচে শুধু যে প্রোগ্রামগুলোর ডাটা আছে সেগুলোর রো) */
+function groupedTableHtml(rows, totals, p){
+  const rowHtml = (r) => {
+    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
+    const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
+    return `<tr>
+      <td class="left"></td>
+      <td class="left indent">${r.program}</td>
+      <td>${r.total.toLocaleString("en-US")}</td>
+      ${statCellHtml(r.sscYes, sscP, p.ssc)}
+      ${statCellHtml(r.sscSyncYes, sscSyncP, p.ssc)}
+      ${statCellHtml(r.hscYes, hscP, p.hsc)}
+      ${statCellHtml(r.hscSyncYes, hscSyncP, p.hsc)}
+    </tr>`;
+  };
+
+  const branchTotalMap = {};
+  rows.forEach(r => { branchTotalMap[r.branch] = (branchTotalMap[r.branch] || 0) + r.total; });
+
+  let bodyHtml = "";
+  let curBranch = null;
+  rows.forEach(r => {
+    if(r.branch !== curBranch){
+      curBranch = r.branch;
+      bodyHtml += `<tr class="group-row"><td colspan="7" class="left">${curBranch}<span class="group-total">মোট ${branchTotalMap[curBranch].toLocaleString("en-US")}</span></td></tr>`;
+    }
+    bodyHtml += rowHtml(r);
+  });
+
+  const sscP = pct(totals.sscYes, totals.total), hscP = pct(totals.hscYes, totals.total);
+  const sscSyncP = pct(totals.sscSyncYes, totals.total), hscSyncP = pct(totals.hscSyncYes, totals.total);
+  bodyHtml += `<tr class="total-row">
+    <td class="left" colspan="2">সর্বমোট</td>
+    <td>${totals.total.toLocaleString("en-US")}</td>
+    ${statCellHtml(totals.sscYes, sscP, p.ssc)}
+    ${statCellHtml(totals.sscSyncYes, sscSyncP, p.ssc)}
+    ${statCellHtml(totals.hscYes, hscP, p.hsc)}
+    ${statCellHtml(totals.hscSyncYes, hscSyncP, p.hsc)}
+  </tr>`;
+
+  return `<div class="table-card scroll-body">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="left"></th>
+            <th class="left">Branch / Program</th>
             <th>মোট ডাটা</th>
             <th>SSC সংগ্রহ</th>
             <th>SSC সিঙ্ক</th>
@@ -466,10 +599,33 @@ function raceBarHtml(rows, p){
   return `<div class="card"><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>`;
 }
 
-function renderProgramSection(rows, totals){
+function renderDetailSection(){
   const p = getActivePalette();
-  document.querySelector("#sectionTable .wrap").innerHTML = tableCardHtml(rows, totals, p);
-  document.querySelector("#sectionRace .wrap").innerHTML = raceBarHtml(rows, p);
+  const sectionRaceEl = document.getElementById("sectionRace");
+  const snapDotsEl = document.getElementById("snapDots");
+  const tableWrap = document.querySelector("#sectionTable .wrap");
+
+  if(currentView === "program"){
+    sectionRaceEl.style.display = "";
+    snapDotsEl.style.display = "";
+    tableWrap.className = "wrap";
+    tableWrap.innerHTML = tableCardHtml(programRows, programTotals, p, "Program", "program", false);
+    document.querySelector("#sectionRace .wrap").innerHTML = raceBarHtml(programRows, p);
+  } else if(currentView === "branch"){
+    sectionRaceEl.style.display = "none";
+    snapDotsEl.style.display = "none";
+    tableWrap.className = "wrap fill";
+    tableWrap.innerHTML = branchRows
+      ? tableCardHtml(branchRows, branchTotals, p, "Branch", "branch", true)
+      : `<div class="error-box">⚠ Branch Wise ডাটা শীটে পাওয়া যায়নি।</div>`;
+  } else if(currentView === "branchProgram"){
+    sectionRaceEl.style.display = "none";
+    snapDotsEl.style.display = "none";
+    tableWrap.className = "wrap fill";
+    tableWrap.innerHTML = branchProgramRows
+      ? groupedTableHtml(branchProgramRows, branchProgramTotals, p)
+      : `<div class="error-box">⚠ Branch Program Wise ডাটা শীটে পাওয়া যায়নি।</div>`;
+  }
 }
 
 /* ============ থিম + প্যালেট কাস্টমাইজার (ফ্লোটিং প্যানেল) ============ */
@@ -543,11 +699,45 @@ document.getElementById("tpReset").addEventListener("click", () => {
 
 themeFab.addEventListener("click", (e) => {
   e.stopPropagation();
+  viewPanel.classList.remove("open");
   themePanel.classList.toggle("open");
 });
 document.addEventListener("click", (e) => {
   if(!themePanel.contains(e.target) && e.target !== themeFab){
     themePanel.classList.remove("open");
+  }
+});
+
+/* ============ "View By" পিকার (ফ্লোটিং প্যানেল) ============ */
+const viewFab = document.getElementById("viewFab");
+const viewPanel = document.getElementById("viewPanel");
+
+function refreshViewRowHighlight(){
+  document.querySelectorAll("[data-view-pick]").forEach(row => {
+    row.classList.toggle("active", row.getAttribute("data-view-pick") === currentView);
+  });
+}
+
+function setView(v){
+  currentView = v;
+  localStorage.setItem("ap26bd_view", v);
+  refreshViewRowHighlight();
+  scrollViewport.scrollTop = 0;
+  renderAll();
+}
+
+document.querySelectorAll("[data-view-pick]").forEach(row => {
+  row.addEventListener("click", () => setView(row.getAttribute("data-view-pick")));
+});
+
+viewFab.addEventListener("click", (e) => {
+  e.stopPropagation();
+  themePanel.classList.remove("open");
+  viewPanel.classList.toggle("open");
+});
+document.addEventListener("click", (e) => {
+  if(!viewPanel.contains(e.target) && e.target !== viewFab){
+    viewPanel.classList.remove("open");
   }
 });
 
@@ -583,6 +773,7 @@ try{
 if(customColors.bg) document.body.style.background = customColors.bg;
 refreshThemeRowHighlight();
 refreshColorInputs();
+refreshViewRowHighlight();
 
 loadData();
 setInterval(loadData, CONFIG.REFRESH_MINUTES * 60 * 1000);
