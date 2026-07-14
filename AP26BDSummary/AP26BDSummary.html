@@ -18,28 +18,38 @@
 
 <style>
   *{box-sizing:border-box;}
-  html,body{margin:0;}
-  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;display:flex;flex-direction:column;overflow:hidden;}
 
-  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
-  .footer-note{text-align:center;font-size:12px;margin-top:22px;}
+  .top-wrap{max-width:1180px;margin:0 auto;padding:10px 20px 0;width:100%;flex:0 0 auto;}
+  .footer-note{text-align:center;font-size:12px;margin-top:12px;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
-  .stat-count{margin-bottom:3px;}
-  .stat-pct{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;}
+  .stat-count{margin-bottom:2px;}
+  .stat-pct{font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:20px;display:inline-block;}
   .table-scroll{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
-  thead th{text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;padding:8px 8px;white-space:nowrap;}
+  thead th{text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;padding:5px 8px;white-space:nowrap;}
   thead th.left{text-align:left;}
-  tbody td{padding:8px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
+  tbody td{padding:5px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
   tbody td.left{text-align:left;}
   .table-card h2{text-align:center;}
-  .ledger-top{text-align:center;position:relative;}
+  .ledger-top{text-align:center;position:relative;flex:0 0 auto;}
 
   /* ============ KPI সেকশন — মিডিল এলাইন + সংখ্যা এক লাইনে + স্ক্রলে ফিক্সড ============ */
-  .kpi-row{position:sticky;top:0;z-index:90;background:var(--paper, var(--panel));padding:12px 0 10px;border-bottom:1px solid var(--line);}
+  .kpi-row{padding:8px 0 6px;border-bottom:1px solid var(--line);}
   .kpi{text-align:center;}
   .kpi .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .kpi .num{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ============ এক-উইন্ডোতে-এক-সেকশন স্ক্রল-স্ন্যাপ (KPI-এর নিচের অংশ) ============ */
+  .scroll-viewport{flex:1 1 auto;min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth;}
+  .snap-section{height:100%;overflow:hidden;display:flex;scroll-snap-align:start;scroll-snap-stop:always;}
+  .snap-section .wrap{max-width:1180px;width:100%;margin:auto;padding:10px 20px;}
+
+  .snap-dots{position:fixed;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:150;}
+  .snap-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-soft, #94A3B8);background:transparent;padding:0;cursor:pointer;opacity:.5;transition:all .2s ease;}
+  .snap-dot:hover{opacity:.85;}
+  .snap-dot.active{background:var(--ink, #0F172A);border-color:var(--ink, #0F172A);opacity:1;transform:scale(1.2);}
 
   /* ============ ফ্লোটিং থিম/প্যালেট কাস্টমাইজার (থিম-নিরপেক্ষ) ============ */
   .theme-fab{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
@@ -62,23 +72,6 @@
 
   /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
   .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
-  #programSection > .card,
-  #programSection > .table-card{margin-bottom:18px;}
-  #programSection > .card:last-child,
-  #programSection > .table-card:last-child{margin-bottom:0;}
-
-  /* কার্ড গ্রিড */
-  .prog-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-  .prog-card{background:var(--panel);border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:14px;text-align:center;}
-  .prog-card-head{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;}
-  .prog-card-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;}
-  .prog-card-total{font-size:11px;color:var(--ink-soft);margin-bottom:10px;}
-  .prog-card-total b{font-size:15px;color:var(--ink);display:block;}
-  .prog-ring-row{display:flex;justify-content:center;gap:10px;}
-  .prog-ring{width:58px;height:58px;border-radius:50%;position:relative;}
-  .prog-ring-hole{position:absolute;inset:6px;background:var(--panel);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .prog-ring-hole b{font-size:11.5px;color:var(--ink);}
-  .prog-ring-hole span{font-size:8.5px;color:var(--ink-soft);text-transform:uppercase;}
 
   /* রেস-বার তুলনা */
   .race-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;}
@@ -108,13 +101,13 @@
   body[data-theme="1"] .ledger-top{background:var(--ink);color:#fff;padding:16px 24px 13px;overflow:hidden;}
   body[data-theme="1"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--gold) 0 18px, transparent 18px 26px);}
   body[data-theme="1"] .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(16px,2.4vw,21px);margin:0 0 2px;}
-  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:26px;}
+  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:12px;}
   body[data-theme="1"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 14px;position:relative;}
   body[data-theme="1"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
   body[data-theme="1"] .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:21px;font-weight:700;color:var(--ink);}
   body[data-theme="1"] .kpi::before{content:"";position:absolute;top:0;left:18px;right:18px;height:3px;background:var(--gold);border-radius:0 0 3px 3px;}
   body[data-theme="1"] .card,
-  body[data-theme="1"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
+  body[data-theme="1"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;}
   body[data-theme="1"] .card h2,
   body[data-theme="1"] .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
   body[data-theme="1"] thead th{color:var(--ink);border-bottom:2px solid var(--ink);}
@@ -134,12 +127,12 @@
   }
   body[data-theme="2"] .ledger-top{background:#fff;color:var(--ink);padding:15px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="2"] .ledger-top h1{font-family:"Inter","Hind Siliguri",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
-  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:22px;}
+  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:12px;}
   body[data-theme="2"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
   body[data-theme="2"] .kpi .num{font-family:"Inter",sans-serif;font-size:20px;font-weight:700;color:var(--accent);}
   body[data-theme="2"] .card,
-  body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+  body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .card h2,
   body[data-theme="2"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
   body[data-theme="2"] thead th{color:var(--ink);border-bottom:1px solid var(--line);}
@@ -160,12 +153,12 @@
   body[data-theme="3"] .ledger-top{background:linear-gradient(180deg,#0B1120,#131B2E);color:#fff;padding:16px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="3"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
   body[data-theme="3"] .ledger-top h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;}
-  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:24px;}
+  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:12px;}
   body[data-theme="3"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
   body[data-theme="3"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
   body[data-theme="3"] .kpi .num{font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:700;color:var(--accent);text-shadow:0 0 14px rgba(34,211,238,.35);}
   body[data-theme="3"] .card,
-  body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
+  body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;}
   body[data-theme="3"] .card h2,
   body[data-theme="3"] .table-card h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:#fff;}
   body[data-theme="3"] thead th{color:var(--ink);border-bottom:1px solid var(--line);}
@@ -190,12 +183,12 @@
   }
   body[data-theme="4"] .ledger-top{background:rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.6);}
   body[data-theme="4"] .ledger-top h1{font-family:"Inter",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
-  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:24px;}
+  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:12px;}
   body[data-theme="4"] .kpi{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:0 8px 24px rgba(99,102,241,.12);}
   body[data-theme="4"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
   body[data-theme="4"] .kpi .num{font-family:"Inter",sans-serif;font-size:19px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
   body[data-theme="4"] .card,
-  body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
+  body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
   body[data-theme="4"] .card h2,
   body[data-theme="4"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
   body[data-theme="4"] thead th{color:var(--ink);border-bottom:1px solid rgba(30,27,58,.15);}
@@ -215,13 +208,13 @@
   }
   body[data-theme="5"] .ledger-top{background:#1B2A4A;color:#fff;padding:15px 24px;border-bottom:2px solid var(--accent2);}
   body[data-theme="5"] .ledger-top h1{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(15px,2.2vw,20px);margin:0 0 3px;}
-  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:0;margin-bottom:26px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
+  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:0;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
   body[data-theme="5"] .kpi{background:var(--panel);border-right:1px solid var(--line);padding:18px 18px 16px;position:relative;}
   body[data-theme="5"] .kpi:last-child{border-right:none;}
   body[data-theme="5"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-soft);margin-bottom:9px;font-weight:600;}
   body[data-theme="5"] .kpi .num{font-family:"Playfair Display",serif;font-size:19px;font-weight:700;color:var(--accent);}
-  body[data-theme="5"] .card{background:var(--panel);border:1px solid var(--line);padding:20px;}
-  body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);padding:20px;}
+  body[data-theme="5"] .card{background:var(--panel);border:1px solid var(--line);padding:12px;}
+  body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);padding:12px;}
   body[data-theme="5"] .card h2,
   body[data-theme="5"] .table-card h2{font-family:"Playfair Display",serif;font-weight:600;font-size:15px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--ink);}
   body[data-theme="5"] thead th{color:var(--ink);border-bottom:2px solid var(--ink);}
@@ -238,13 +231,19 @@
   <h1>Admission 2026 — Board Data Synchronization Summary</h1>
 </div>
 
-<div class="wrap">
+<div class="top-wrap">
   <div id="errorArea"></div>
   <div id="kpiRow" class="kpi-row"></div>
+</div>
 
-  <div id="programSection"></div>
+<div class="scroll-viewport" id="scrollViewport">
+  <section class="snap-section" id="sectionTable"><div class="wrap"></div></section>
+  <section class="snap-section" id="sectionRace"><div class="wrap"></div></section>
+</div>
 
-  <div class="footer-note">প্রতি <span id="refreshMin"></span> মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>
+<div class="snap-dots" id="snapDots">
+  <button class="snap-dot" data-snap-idx="0" aria-label="প্রোগ্রামভিত্তিক বিস্তারিত সামারি" title="প্রোগ্রামভিত্তিক বিস্তারিত সামারি"></button>
+  <button class="snap-dot" data-snap-idx="1" aria-label="SSC ও HSC ডাটা তুলনা" title="SSC ও HSC ডাটা তুলনা"></button>
 </div>
 
 <button class="theme-fab" id="themeFab" aria-label="Theme settings" title="Theme settings">🎨</button>
@@ -261,7 +260,6 @@
 </div>
 
 <script>
-document.getElementById("refreshMin").textContent = CONFIG.REFRESH_MINUTES;
 let lastRows = null, lastTotals = null;
 
 const THEME_PALETTE = {
@@ -414,7 +412,7 @@ function renderKPIs(t, totalLabel){
   ).join("");
 }
 
-function tableCardHtml(rows, totals, heading, p){
+function tableCardHtml(rows, totals, p){
   const statCell = (count, pctVal, color) => `<td>
       <div class="stat-count">${count.toLocaleString("en-US")}</div>
       <div class="stat-pct" style="color:${color};background:${color}1F">${pctVal}%</div>
@@ -435,7 +433,6 @@ function tableCardHtml(rows, totals, heading, p){
   let bodyHtml = rows.map(r => rowHtml(r.program, r, false)).join("");
   bodyHtml += rowHtml("সর্বমোট", totals, true);
   return `<div class="table-card">
-    <h2>${heading}</h2>
     <div class="table-scroll">
       <table>
         <thead>
@@ -455,25 +452,6 @@ function tableCardHtml(rows, totals, heading, p){
   </div>`;
 }
 
-function ringHtml(pctVal, color, label){
-  const deg = (pctVal * 3.6).toFixed(1);
-  return `<div class="prog-ring" style="background:conic-gradient(${color} 0deg ${deg}deg, var(--line) ${deg}deg 360deg)">
-    <div class="prog-ring-hole"><b>${pctVal}%</b><span>${label}</span></div>
-  </div>`;
-}
-
-function cardGridHtml(rows, p){
-  const cards = rows.map(r => {
-    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
-    return `<div class="prog-card">
-      <div class="prog-card-head"><span class="prog-card-name">${shortName(r.program)}</span></div>
-      <div class="prog-card-total"><b>${r.total.toLocaleString("en-US")}</b>মোট ডাটা</div>
-      <div class="prog-ring-row">${ringHtml(sscP, p.ssc, "SSC")}${ringHtml(hscP, p.hsc, "HSC")}</div>
-    </div>`;
-  }).join("");
-  return `<div class="card"><h2>প্রোগ্রামভিত্তিক ডাটা</h2><div class="prog-card-grid">${cards}</div></div>`;
-}
-
 function raceBarHtml(rows, p){
   const barRow = (label, count, total, color) => {
     const pctVal = pct(count, total);
@@ -491,15 +469,14 @@ function raceBarHtml(rows, p){
   const online = rows.filter(r => r.program.includes("(Online)"));
   const colHtml = (label, list) => `<div class="race-col"><div class="race-col-head">${label}</div>${list.map(groupHtml).join("")}</div>`;
 
-  return `<div class="card"><h2>SSC ও HSC ডাটা তুলনা</h2><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>`;
+  return `<div class="card"><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>
+    <div class="footer-note">প্রতি ${CONFIG.REFRESH_MINUTES} মিনিটে ডাটা স্বয়ংক্রিয়ভাবে রিফ্রেশ হয় · শীটে পরিবর্তন করলে এখানে নিজে থেকেই আপডেট হবে</div>`;
 }
 
 function renderProgramSection(rows, totals){
   const p = getActivePalette();
-  const html = tableCardHtml(rows, totals, "প্রোগ্রামভিত্তিক বিস্তারিত সামারি", p)
-    + cardGridHtml(rows, p)
-    + raceBarHtml(rows, p);
-  document.getElementById("programSection").innerHTML = html;
+  document.querySelector("#sectionTable .wrap").innerHTML = tableCardHtml(rows, totals, p);
+  document.querySelector("#sectionRace .wrap").innerHTML = raceBarHtml(rows, p);
 }
 
 /* ============ থিম + প্যালেট কাস্টমাইজার (ফ্লোটিং প্যানেল) ============ */
@@ -580,6 +557,29 @@ document.addEventListener("click", (e) => {
     themePanel.classList.remove("open");
   }
 });
+
+/* ============ এক-উইন্ডোতে-এক-সেকশন স্ক্রল-স্ন্যাপ ডট ইন্ডিকেটর ============ */
+const scrollViewport = document.getElementById("scrollViewport");
+const snapSections = Array.from(document.querySelectorAll(".snap-section"));
+const snapDots = Array.from(document.querySelectorAll(".snap-dot"));
+
+snapDots.forEach((dot, idx) => {
+  dot.addEventListener("click", () => {
+    snapSections[idx].scrollIntoView({behavior:"smooth", block:"start"});
+  });
+});
+
+const snapObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      const idx = snapSections.indexOf(entry.target);
+      snapDots.forEach((d,i) => d.classList.toggle("active", i === idx));
+    }
+  });
+}, { root: scrollViewport, threshold: 0.5 });
+
+snapSections.forEach(sec => snapObserver.observe(sec));
+snapDots[0].classList.add("active");
 
 const savedTheme = localStorage.getItem("ap26bd_theme_preview") || "2";
 document.body.setAttribute("data-theme", savedTheme);
