@@ -28,7 +28,7 @@
   .stat-pct{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;}
   .table-scroll{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
-  thead th{text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:8px 8px;white-space:nowrap;}
+  thead th{text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;padding:8px 8px;white-space:nowrap;}
   thead th.left{text-align:left;}
   tbody td{padding:16px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
   tbody td.left{text-align:left;}
@@ -68,10 +68,9 @@
   #programSection > .table-card:last-child{margin-bottom:0;}
 
   /* কার্ড গ্রিড */
-  .prog-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+  .prog-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
   .prog-card{background:var(--panel);border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:14px;text-align:center;}
   .prog-card-head{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;}
-  .prog-card-sl{font-size:10.5px;color:var(--ink-soft);}
   .prog-card-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;}
   .prog-card-total{font-size:11px;color:var(--ink-soft);margin-bottom:10px;}
   .prog-card-total b{font-size:15px;color:var(--ink);display:block;}
@@ -91,7 +90,7 @@
   .race-label{font-size:10.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;}
   .race-track{height:9px;border-radius:5px;background:var(--line);overflow:hidden;}
   .race-track i{display:block;height:100%;border-radius:5px;}
-  .race-pct{font-size:11px;color:var(--ink-soft);text-align:right;white-space:nowrap;}
+  .race-pct{font-size:11px;color:var(--ink);font-weight:800;text-align:right;white-space:nowrap;}
 
   /* =========================================================
      থিম ১ — ক্লাসিক লেজার (আগের ডিজাইন)
@@ -114,7 +113,7 @@
   body[data-theme="1"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
   body[data-theme="1"] .card h2,
   body[data-theme="1"] .table-card h2{font-family:"Noto Serif Bengali", serif;font-size:15.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--ink);}
-  body[data-theme="1"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
+  body[data-theme="1"] thead th{color:var(--ink);border-bottom:2px solid var(--ink);}
   body[data-theme="1"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="1"] tbody tr:hover{background:#FAF8F2;}
   body[data-theme="1"] tr.total-row td{background:#FBF3E4;border-top:2px solid var(--gold);}
@@ -139,7 +138,7 @@
   body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   body[data-theme="2"] .card h2,
   body[data-theme="2"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
-  body[data-theme="2"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
+  body[data-theme="2"] thead th{color:var(--ink);border-bottom:1px solid var(--line);}
   body[data-theme="2"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="2"] tbody tr:hover{background:#F1F5F9;}
   body[data-theme="2"] tr.total-row td{background:#EFF6FF;}
@@ -165,7 +164,7 @@
   body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
   body[data-theme="3"] .card h2,
   body[data-theme="3"] .table-card h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14.5px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:#fff;}
-  body[data-theme="3"] thead th{color:var(--ink-soft);border-bottom:1px solid var(--line);}
+  body[data-theme="3"] thead th{color:var(--ink);border-bottom:1px solid var(--line);}
   body[data-theme="3"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="3"] tbody tr:hover{background:#1A2338;}
   body[data-theme="3"] tr.total-row td{background:#17233B;box-shadow:inset 0 1px 0 var(--accent);}
@@ -195,7 +194,7 @@
   body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
   body[data-theme="4"] .card h2,
   body[data-theme="4"] .table-card h2{font-family:"Inter",sans-serif;font-weight:700;font-size:14.5px;margin:0 0 14px;color:var(--ink);}
-  body[data-theme="4"] thead th{color:var(--ink-soft);border-bottom:1px solid rgba(30,27,58,.15);}
+  body[data-theme="4"] thead th{color:var(--ink);border-bottom:1px solid rgba(30,27,58,.15);}
   body[data-theme="4"] tbody td{border-bottom:1px solid rgba(30,27,58,.08);}
   body[data-theme="4"] tbody tr:hover{background:rgba(255,255,255,.4);}
   body[data-theme="4"] tr.total-row td{background:rgba(255,255,255,.5);}
@@ -221,7 +220,7 @@
   body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);padding:20px;}
   body[data-theme="5"] .card h2,
   body[data-theme="5"] .table-card h2{font-family:"Playfair Display",serif;font-weight:600;font-size:15px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--ink);}
-  body[data-theme="5"] thead th{color:var(--ink-soft);border-bottom:2px solid var(--ink);}
+  body[data-theme="5"] thead th{color:var(--ink);border-bottom:2px solid var(--ink);}
   body[data-theme="5"] tbody td{border-bottom:1px solid var(--line);}
   body[data-theme="5"] tbody tr:hover{background:#F7F6F2;}
   body[data-theme="5"] tr.total-row td{background:#F1EFE8;border-top:2px solid var(--accent2);}
@@ -280,8 +279,19 @@ function getActivePalette(){
   const base = THEME_PALETTE[currentTheme()];
   return { ssc: customColors.primary || base.ssc, hsc: customColors.secondary || base.hsc };
 }
+const PROGRAM_BRAND = {
+  "Medical": ["Unmesh", "OnlineCare"],
+  "Engineering": ["Udvash", "OnlineCare"],
+  "Varsity 'KA'": ["Udvash", "OnlineCare"],
+  "Varsity 'KHA'": ["Udvash", "OnlineCare"]
+};
 function shortName(program){
-  return program.replace(" Admission Program", "").replace("(Online)", "(অনলাইন)");
+  const name = program.replace(" Admission Program", "");
+  const isOnline = name.includes("(Online)");
+  const base = name.replace(" (Online)", "");
+  const brand = PROGRAM_BRAND[base];
+  if(brand) return `${base} (${isOnline ? brand[1] : brand[0]})`;
+  return isOnline ? name.replace("(Online)", "(অনলাইন)") : name;
 }
 
 function showError(msg){
@@ -448,7 +458,7 @@ function cardGridHtml(rows, p){
   const cards = rows.map(r => {
     const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
     return `<div class="prog-card">
-      <div class="prog-card-head"><span class="prog-card-sl">${r.sl}</span><span class="prog-card-name">${shortName(r.program)}</span></div>
+      <div class="prog-card-head"><span class="prog-card-name">${shortName(r.program)}</span></div>
       <div class="prog-card-total"><b>${r.total.toLocaleString("en-US")}</b>মোট ডাটা</div>
       <div class="prog-ring-row">${ringHtml(sscP, p.ssc, "SSC")}${ringHtml(hscP, p.hsc, "HSC")}</div>
     </div>`;
@@ -459,11 +469,11 @@ function cardGridHtml(rows, p){
 function raceBarHtml(rows, p){
   const barRow = (label, count, total, color) => {
     const pctVal = pct(count, total);
-    return `<div class="race-row"><span class="race-label">${label}</span><div class="race-track"><i style="width:${pctVal}%;background:${color}"></i></div><span class="race-pct">${count.toLocaleString("en-US")} · ${pctVal}%</span></div>`;
+    return `<div class="race-row"><span class="race-label">${label}</span><div class="race-track"><i style="width:${pctVal}%;background:${color}"></i></div><span class="race-pct">${count.toLocaleString("en-US")} (${pctVal}%)</span></div>`;
   };
   const groups = rows.map(r => {
     return `<div class="race-group">
-      <div class="race-title"><span>${r.sl}. ${shortName(r.program)}</span><span class="race-total">মোট ${r.total.toLocaleString("en-US")}</span></div>
+      <div class="race-title"><span>${shortName(r.program)}</span><span class="race-total">মোট ${r.total.toLocaleString("en-US")}</span></div>
       ${barRow("SSC এন্ট্রি", r.sscYes, r.total, p.ssc)}
       ${barRow("SSC সিঙ্ক", r.sscSyncYes, r.total, p.ssc)}
       ${barRow("HSC এন্ট্রি", r.hscYes, r.total, p.hsc)}
