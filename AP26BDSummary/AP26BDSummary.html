@@ -81,6 +81,10 @@
   .prog-ring-hole span{font-size:8.5px;color:var(--ink-soft);text-transform:uppercase;}
 
   /* রেস-বার তুলনা */
+  .race-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;}
+  .race-col{border-left:1px solid var(--line);padding-left:24px;}
+  .race-col:first-child{border-left:none;padding-left:0;}
+  .race-col-head{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--ink-soft);margin-bottom:10px;}
   .race-group{padding:12px 0;border-bottom:1px solid var(--line);}
   .race-group:last-child{border-bottom:none;}
   .race-title{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px;}
@@ -471,16 +475,19 @@ function raceBarHtml(rows, p){
     const pctVal = pct(count, total);
     return `<div class="race-row"><span class="race-label">${label}</span><div class="race-track"><i style="width:${pctVal}%;background:${color}"></i></div><span class="race-pct">${count.toLocaleString("en-US")} (${pctVal}%)</span></div>`;
   };
-  const groups = rows.map(r => {
-    return `<div class="race-group">
+  const groupHtml = (r) => `<div class="race-group">
       <div class="race-title"><span>${shortName(r.program)}</span><span class="race-total">মোট ${r.total.toLocaleString("en-US")}</span></div>
       ${barRow("SSC এন্ট্রি", r.sscYes, r.total, p.ssc)}
       ${barRow("SSC সিঙ্ক", r.sscSyncYes, r.total, p.ssc)}
       ${barRow("HSC এন্ট্রি", r.hscYes, r.total, p.hsc)}
       ${barRow("HSC সিঙ্ক", r.hscSyncYes, r.total, p.hsc)}
     </div>`;
-  }).join("");
-  return `<div class="card"><h2>SSC ও HSC ডাটা তুলনা</h2>${groups}</div>`;
+
+  const offline = rows.filter(r => !r.program.includes("(Online)"));
+  const online = rows.filter(r => r.program.includes("(Online)"));
+  const colHtml = (label, list) => `<div class="race-col"><div class="race-col-head">${label}</div>${list.map(groupHtml).join("")}</div>`;
+
+  return `<div class="card"><h2>SSC ও HSC ডাটা তুলনা</h2><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>`;
 }
 
 function renderProgramSection(rows, totals){
