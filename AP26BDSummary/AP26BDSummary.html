@@ -284,7 +284,7 @@
 <script>
 let DATA = {};
 let programTotalLabel = "মোট আবেদন";
-let currentView = localStorage.getItem("ap26bd_view") || "program";
+let currentView = "program";
 
 /* ============ ভিউ সংজ্ঞা: প্রতিটা ভিউয়ের ডাটা-কী, গ্রুপিং ও লেবেল কলাম ============ */
 const VIEW_DEFS = {
@@ -901,7 +901,6 @@ function refreshViewRowHighlight(){
 
 function setView(v){
   currentView = v;
-  localStorage.setItem("ap26bd_view", v);
   refreshViewRowHighlight();
   window.scrollTo(0, 0);
   renderAll();
