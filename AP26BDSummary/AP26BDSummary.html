@@ -20,7 +20,7 @@
   *{box-sizing:border-box;}
   html,body{margin:0;}
   /* নোট: table-scroll-এ overflow-x:auto দেওয়া যাবে না — তাহলে ব্রাউজার overflow-y-ও auto করে দেয় (CSS স্পেক অনুযায়ী), যা sticky টুলবার/হেডারকে window-এর বদলে এই ছোট বক্সের মধ্যে আটকে ফেলে (sticky কাজ করে না)। তাই প্রশস্ত টেবিলের হরাইজন্টাল স্ক্রল পুরো পেইজ-লেভেলে (body) হ্যান্ডেল করা হয়। */
-  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;overflow-x:auto;}
+  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;overflow-x:auto;display:flex;flex-direction:column;min-height:100vh;}
 
   .top-wrap{max-width:1180px;margin:0 auto;padding:10px 20px 0;width:100%;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
@@ -44,9 +44,9 @@
   .kpi .num .kpi-pct{display:block;font-size:.72em;font-weight:600;opacity:.85;margin-top:2px;}
 
   /* ============ KPI-এর নিচের কনটেন্ট এরিয়া (পুরো পেইজ স্বাভাবিকভাবে স্ক্রল হয়, ডেস্কটপ+মোবাইল একই আচরণ) ============ */
-  .content-section{display:block;}
-  /* min-height:100vh — ছোট টেবিলে (যেমন Mentor Wise Summary, মাত্র কয়েক রো) পেইজ ভিউপোর্টের চেয়ে সামান্যই লম্বা হলে স্টিকি টুলবার top:0-এ পৌঁছানোর আগেই এই wrap (টুলবারের containing block) শেষ হয়ে যায় — CSS নিয়মে স্টিকি এলিমেন্ট নিজের containing block পার হতে পারে না, তাই থেমে যায়। সবসময় অন্তত এক ভিউপোর্ট সমান জায়গা নিশ্চিত করলে এই সমস্যা হয় না। */
-  .content-section .wrap{max-width:1180px;width:100%;margin:0 auto;padding:10px 20px;min-height:100vh;}
+  /* body flex-column + min-height:100vh (উপরে) + এখানে flex:1 1 auto — ছোট টেবিলে (যেমন Mentor Wise Summary) পেইজ ভিউপোর্টের চেয়ে সামান্যই লম্বা হলে স্টিকি টুলবার top:0-এ পৌঁছানোর আগেই containing block শেষ হয়ে যেত (CSS নিয়মে স্টিকি এলিমেন্ট নিজের containing block পার হতে পারে না) — এখন হেডার/KPI-এর ঠিক নিচে অবশিষ্ট জায়গা এই সেকশন পূরণ করে দেয় (হেডারের উচ্চতা যোগ করে বাড়তি স্ক্রলবার তৈরি হয় না, শুধু content শেষে ফাঁকা জায়গা দরকার হলে সেটাই ভরাট হয়)। */
+  .content-section{flex:1 1 auto;}
+  .content-section .wrap{max-width:1180px;width:100%;margin:0 auto;padding:10px 20px;height:100%;}
 
   /* ============ টেবিল টুলবার: সার্চ + প্রতিটা ফিল্টার সমান-প্রস্থের কলামে, একলাইনে (ভার্টিক্যাল ডিভাইডারে আলাদা) — স্ক্রল করলে উপরে লক/স্টিকি থাকবে ============ */
   .tbl-toolbar{display:flex;flex-shrink:0;align-items:stretch;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--panel);position:sticky;top:0;z-index:15;box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -79,7 +79,7 @@
 
   /* ============ ফ্লোটিং থিম/প্যালেট কাস্টমাইজার (থিম-নিরপেক্ষ) ============ */
   .theme-fab{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
-  .theme-panel{position:fixed;right:22px;bottom:84px;width:220px;max-height:80vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
+  .theme-panel{position:fixed;right:22px;bottom:84px;width:220px;max-height:80vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Inter","Hind Siliguri",sans-serif;}
   .theme-panel.open{display:block;}
   .tp-label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);font-weight:700;margin:0 0 8px;}
   .tp-label.tp-label-2{margin-top:14px;}
@@ -98,7 +98,7 @@
 
   /* ============ ফ্লোটিং "View By" পিকার (থিম-পিকারের প্রতিসম, বিপরীত কোনায়) ============ */
   .view-fab{position:fixed;left:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
-  .view-panel{position:fixed;left:22px;bottom:84px;width:210px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
+  .view-panel{position:fixed;left:22px;bottom:84px;width:210px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Inter","Hind Siliguri",sans-serif;}
   .view-panel.open{display:block;}
 
   /* =========================================================
