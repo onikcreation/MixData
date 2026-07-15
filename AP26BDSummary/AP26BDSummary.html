@@ -18,52 +18,68 @@
 
 <style>
   *{box-sizing:border-box;}
-  html,body{margin:0;height:100%;}
-  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;display:flex;flex-direction:column;overflow:hidden;}
+  html,body{margin:0;}
+  /* নোট: table-scroll-এ overflow-x:auto দেওয়া যাবে না — তাহলে ব্রাউজার overflow-y-ও auto করে দেয় (CSS স্পেক অনুযায়ী), যা sticky টুলবার/হেডারকে window-এর বদলে এই ছোট বক্সের মধ্যে আটকে ফেলে (sticky কাজ করে না)। তাই প্রশস্ত টেবিলের হরাইজন্টাল স্ক্রল পুরো পেইজ-লেভেলে (body) হ্যান্ডেল করা হয়। */
+  body{font-family:"Hind Siliguri", sans-serif;-webkit-font-smoothing:antialiased;transition:background .25s ease, color .25s ease;overflow-x:auto;}
 
-  .top-wrap{max-width:1180px;margin:0 auto;padding:10px 20px 0;width:100%;flex:0 0 auto;}
+  .top-wrap{max-width:1180px;margin:0 auto;padding:10px 20px 0;width:100%;}
   .error-box{padding:14px 16px;border-radius:8px;font-size:13.5px;margin-bottom:20px;}
   .stat-count{margin-bottom:2px;}
   .stat-pct{font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:20px;display:inline-block;}
-  .table-scroll{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;}
-  thead th{text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;padding:5px 8px;white-space:nowrap;}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:1050px;}
+  thead th{text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;padding:5px 8px;white-space:nowrap;position:sticky;top:var(--toolbar-h, 54px);background:var(--panel);z-index:5;}
   thead th.left{text-align:left;}
   tbody td{padding:5px 8px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:.2px;}
   tbody td.left{text-align:left;}
   td.indent{padding-left:26px;}
   .table-card h2{text-align:center;}
-  .ledger-top{text-align:center;position:relative;flex:0 0 auto;}
+  .ledger-top{text-align:center;position:relative;}
 
-  /* ============ KPI সেকশন — মিডিল এলাইন + সংখ্যা এক লাইনে + স্ক্রলে ফিক্সড ============ */
+  /* ============ KPI সেকশন — মিডিল এলাইন + সংখ্যা এক লাইনে (আর ফ্রিজড না, স্ক্রল করলে স্বাভাবিকভাবে উপরে চলে যাবে) ============ */
   .kpi-row{padding:8px 0 6px;border-bottom:1px solid var(--line);}
   .kpi{text-align:center;}
-  .kpi .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .kpi .num{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi .eyebrow{overflow-wrap:break-word;}
+  .kpi .num{overflow-wrap:break-word;}
+  .kpi .num .kpi-count{display:block;}
+  .kpi .num .kpi-pct{display:block;font-size:.72em;font-weight:600;opacity:.85;margin-top:2px;}
 
-  /* ============ এক-উইন্ডোতে-এক-সেকশন স্ক্রল-স্ন্যাপ (KPI-এর নিচের অংশ) ============ */
-  .scroll-viewport{flex:1 1 auto;min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth;}
-  .snap-section{height:100%;overflow:hidden;display:flex;scroll-snap-align:start;scroll-snap-stop:always;}
-  .snap-section .wrap{max-width:1180px;width:100%;margin:auto;padding:10px 20px;}
-  .snap-section .wrap.fill{margin:0 auto;height:100%;display:flex;flex-direction:column;}
+  /* ============ KPI-এর নিচের কনটেন্ট এরিয়া (পুরো পেইজ স্বাভাবিকভাবে স্ক্রল হয়, ডেস্কটপ+মোবাইল একই আচরণ) ============ */
+  .content-section{display:block;}
+  /* min-height:100vh — ছোট টেবিলে (যেমন Mentor Wise Summary, মাত্র কয়েক রো) পেইজ ভিউপোর্টের চেয়ে সামান্যই লম্বা হলে স্টিকি টুলবার top:0-এ পৌঁছানোর আগেই এই wrap (টুলবারের containing block) শেষ হয়ে যায় — CSS নিয়মে স্টিকি এলিমেন্ট নিজের containing block পার হতে পারে না, তাই থেমে যায়। সবসময় অন্তত এক ভিউপোর্ট সমান জায়গা নিশ্চিত করলে এই সমস্যা হয় না। */
+  .content-section .wrap{max-width:1180px;width:100%;margin:0 auto;padding:10px 20px;min-height:100vh;}
 
-  /* বড় (Branch/Branch-Program Wise) টেবিলের নিজস্ব ভার্টিক্যাল স্ক্রল + sticky header */
-  .table-card.scroll-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;}
-  .table-card.scroll-body .table-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;}
-  .table-card.scroll-body thead th{position:sticky;top:0;background:var(--panel);z-index:2;}
+  /* ============ টেবিল টুলবার: সার্চ + প্রতিটা ফিল্টার সমান-প্রস্থের কলামে, একলাইনে (ভার্টিক্যাল ডিভাইডারে আলাদা) — স্ক্রল করলে উপরে লক/স্টিকি থাকবে ============ */
+  .tbl-toolbar{display:flex;flex-shrink:0;align-items:stretch;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--panel);position:sticky;top:0;z-index:15;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .tbl-toolbar-col{flex:1 1 0;min-width:0;padding:8px 12px;display:flex;align-items:center;}
+  .tbl-toolbar-divider{width:1px;flex:0 0 auto;background:var(--line);}
+  .tbl-search-wrap{position:relative;width:100%;}
+  .tbl-search-wrap::before{content:"🔍";position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.55;pointer-events:none;}
+  .tbl-search{width:100%;padding:7px 12px 7px 30px;border:1px solid var(--line);border-radius:8px;background:var(--paper, var(--panel));color:var(--ink);font-family:"Hind Siliguri",sans-serif;font-size:12.5px;}
+  .tbl-search:focus{outline:none;border-color:var(--ink-soft);}
+  .tbl-filter-group{position:relative;width:100%;}
+  .tbl-filter-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:5px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper, var(--panel));color:var(--ink);font-size:12px;font-weight:600;cursor:pointer;font-family:"Hind Siliguri",sans-serif;}
+  .tbl-filter-btn:hover{background:var(--line);}
+  .tbl-filter-badge{background:var(--ink);color:var(--panel);border-radius:20px;font-size:10px;padding:1px 6px;font-weight:700;}
+  .tbl-caret{font-size:9px;color:var(--ink-soft);}
+  .tbl-filter-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:210px;max-height:260px;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:8px;z-index:120;}
+  .tbl-filter-dropdown.open{display:block;}
+  .tbl-filter-actions{display:flex;justify-content:flex-end;margin-bottom:6px;}
+  .tbl-filter-actions button{border:none;background:none;color:var(--ink-soft);font-size:11px;cursor:pointer;font-weight:600;text-decoration:underline;font-family:"Hind Siliguri",sans-serif;}
+  .tbl-filter-item{display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;font-size:12px;color:var(--ink);cursor:pointer;}
+  .tbl-filter-item:hover{background:var(--line);}
+  .tbl-filter-item input{cursor:pointer;}
+  th[data-sort-key]{cursor:pointer;-webkit-user-select:none;user-select:none;}
+  th[data-sort-key]:hover{opacity:.75;}
+  .sort-arrow{font-size:10px;margin-left:3px;}
+  .tbl-empty-row td{padding:22px 8px;text-align:center;color:var(--ink-soft);font-size:13px;font-weight:600;}
 
   /* Branch & Program Wise গ্রুপ-হেডার রো */
   .group-row td{background:var(--line);font-weight:700;padding:9px 8px;}
   .group-total{font-weight:500;font-size:11px;color:var(--ink-soft);margin-left:10px;}
 
-  .snap-dots{position:fixed;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:150;}
-  .snap-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-soft, #94A3B8);background:transparent;padding:0;cursor:pointer;opacity:.5;transition:all .2s ease;}
-  .snap-dot:hover{opacity:.85;}
-  .snap-dot.active{background:var(--ink, #0F172A);border-color:var(--ink, #0F172A);opacity:1;transform:scale(1.2);}
-
   /* ============ ফ্লোটিং থিম/প্যালেট কাস্টমাইজার (থিম-নিরপেক্ষ) ============ */
   .theme-fab{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);background:var(--ink);color:#fff;line-height:1;}
-  .theme-panel{position:fixed;right:22px;bottom:84px;width:200px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
+  .theme-panel{position:fixed;right:22px;bottom:84px;width:220px;max-height:80vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
   .theme-panel.open{display:block;}
   .tp-label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);font-weight:700;margin:0 0 8px;}
   .tp-label.tp-label-2{margin-top:14px;}
@@ -85,25 +101,6 @@
   .view-panel{position:fixed;left:22px;bottom:84px;width:210px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:14px;z-index:200;display:none;color:var(--ink);font-family:"Hind Siliguri",sans-serif;}
   .view-panel.open{display:block;}
 
-  /* ============ প্রোগ্রাম-সেকশন কমন কম্পোনেন্ট (থিম-নিরপেক্ষ, ভেরিয়েবল দিয়ে থিম মেনে চলে) ============ */
-  .ref-table-heading{font-size:12px;font-weight:600;color:var(--ink-soft);margin:22px 0 10px;padding-top:4px;letter-spacing:.3px;}
-
-  /* রেস-বার তুলনা */
-  .race-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;}
-  .race-col{border-left:1px solid var(--line);padding-left:24px;}
-  .race-col:first-child{border-left:none;padding-left:0;}
-  .race-col-head{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--ink-soft);margin-bottom:10px;}
-  .race-group{padding:12px 0;border-bottom:1px solid var(--line);}
-  .race-group:last-child{border-bottom:none;}
-  .race-title{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px;}
-  .race-title .race-total{font-size:11px;font-weight:500;color:var(--ink-soft);}
-  .race-row{display:grid;grid-template-columns:72px 1fr 96px;align-items:center;gap:8px;margin-bottom:5px;}
-  .race-row:last-child{margin-bottom:0;}
-  .race-label{font-size:10.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;}
-  .race-track{height:9px;border-radius:5px;background:var(--line);overflow:hidden;}
-  .race-track i{display:block;height:100%;border-radius:5px;}
-  .race-pct{font-size:11px;color:var(--ink);font-weight:800;text-align:right;white-space:nowrap;}
-
   /* =========================================================
      থিম ১ — ক্লাসিক লেজার (আগের ডিজাইন)
      ========================================================= */
@@ -116,9 +113,9 @@
   body[data-theme="1"] .ledger-top{background:var(--ink);color:#fff;padding:16px 24px 13px;overflow:hidden;}
   body[data-theme="1"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--gold) 0 18px, transparent 18px 26px);}
   body[data-theme="1"] .ledger-top h1{font-family:"Noto Serif Bengali", serif;font-size:clamp(16px,2.4vw,21px);margin:0 0 2px;}
-  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:12px;}
+  body[data-theme="1"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:12px;}
   body[data-theme="1"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 14px;position:relative;}
-  body[data-theme="1"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  body[data-theme="1"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:700;}
   body[data-theme="1"] .kpi .num{font-family:"Noto Serif Bengali", serif;font-size:21px;font-weight:700;color:var(--ink);}
   body[data-theme="1"] .kpi::before{content:"";position:absolute;top:0;left:18px;right:18px;height:3px;background:var(--gold);border-radius:0 0 3px 3px;}
   body[data-theme="1"] .card,
@@ -141,9 +138,9 @@
   }
   body[data-theme="2"] .ledger-top{background:#fff;color:var(--ink);padding:15px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="2"] .ledger-top h1{font-family:"Inter","Hind Siliguri",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
-  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:12px;}
+  body[data-theme="2"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px;}
   body[data-theme="2"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
-  body[data-theme="2"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
+  body[data-theme="2"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:10px;font-weight:700;}
   body[data-theme="2"] .kpi .num{font-family:"Inter",sans-serif;font-size:20px;font-weight:700;color:var(--accent);}
   body[data-theme="2"] .card,
   body[data-theme="2"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
@@ -166,9 +163,9 @@
   body[data-theme="3"] .ledger-top{background:linear-gradient(180deg,#0B1120,#131B2E);color:#fff;padding:16px 24px;border-bottom:1px solid var(--line);}
   body[data-theme="3"] .ledger-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
   body[data-theme="3"] .ledger-top h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;}
-  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:12px;}
+  body[data-theme="3"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:12px;}
   body[data-theme="3"] .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
-  body[data-theme="3"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  body[data-theme="3"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-bottom:8px;font-weight:700;}
   body[data-theme="3"] .kpi .num{font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:700;color:var(--accent);text-shadow:0 0 14px rgba(34,211,238,.35);}
   body[data-theme="3"] .card,
   body[data-theme="3"] .table-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;}
@@ -195,9 +192,9 @@
   }
   body[data-theme="4"] .ledger-top{background:rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.6);}
   body[data-theme="4"] .ledger-top h1{font-family:"Inter",sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,19px);margin:0 0 3px;letter-spacing:-.3px;}
-  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:12px;}
+  body[data-theme="4"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:12px;}
   body[data-theme="4"] .kpi{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:0 8px 24px rgba(99,102,241,.12);}
-  body[data-theme="4"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  body[data-theme="4"] .kpi .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin-bottom:8px;font-weight:700;}
   body[data-theme="4"] .kpi .num{font-family:"Inter",sans-serif;font-size:19px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
   body[data-theme="4"] .card,
   body[data-theme="4"] .table-card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:0 8px 24px rgba(99,102,241,.10);}
@@ -219,10 +216,10 @@
   }
   body[data-theme="5"] .ledger-top{background:#1B2A4A;color:#fff;padding:15px 24px;border-bottom:2px solid var(--accent2);}
   body[data-theme="5"] .ledger-top h1{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(15px,2.2vw,20px);margin:0 0 3px;}
-  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:0;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
+  body[data-theme="5"] .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
   body[data-theme="5"] .kpi{background:var(--panel);border-right:1px solid var(--line);padding:18px 18px 16px;position:relative;}
   body[data-theme="5"] .kpi:last-child{border-right:none;}
-  body[data-theme="5"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-soft);margin-bottom:9px;font-weight:600;}
+  body[data-theme="5"] .kpi .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-soft);margin-bottom:9px;font-weight:700;}
   body[data-theme="5"] .kpi .num{font-family:"Playfair Display",serif;font-size:19px;font-weight:700;color:var(--accent);}
   body[data-theme="5"] .card{background:var(--panel);border:1px solid var(--line);padding:12px;}
   body[data-theme="5"] .table-card{background:var(--panel);border:1px solid var(--line);padding:12px;}
@@ -233,12 +230,19 @@
   body[data-theme="5"] tbody tr:hover{background:#F7F6F2;}
   body[data-theme="5"] tr.total-row td{background:#F1EFE8;border-top:2px solid var(--accent2);}
   body[data-theme="5"] .error-box{background:#FBEAE7;border:1px solid var(--bad);color:var(--bad);}
+
+  /* ============ মোবাইল: টুলবার প্রয়োজনে দুই রোতে wrap করে; টেবিল-হেডারের sticky top অফসেট JS দিয়ে ডাইনামিকভাবে টুলবারের প্রকৃত উচ্চতায় সেট হয় (--toolbar-h) ============ */
+  @media (max-width:768px){
+    .tbl-toolbar{flex-wrap:wrap;}
+    .tbl-toolbar-col{flex:1 1 45%;}
+    .tbl-toolbar-divider{display:none;}
+  }
 </style>
 </head>
 <body data-theme="2">
 
 <div class="ledger-top">
-  <h1>Admission 2026 — Board Data Synchronization Summary</h1>
+  <h1>Admission 2026 Board Data Summary</h1>
 </div>
 
 <div class="top-wrap">
@@ -246,23 +250,19 @@
   <div id="kpiRow" class="kpi-row"></div>
 </div>
 
-<div class="scroll-viewport" id="scrollViewport">
-  <section class="snap-section" id="sectionTable"><div class="wrap"></div></section>
-  <section class="snap-section" id="sectionRace"><div class="wrap"></div></section>
-</div>
+<section class="content-section" id="sectionTable"><div class="wrap"></div></section>
 
-<div class="snap-dots" id="snapDots">
-  <button class="snap-dot" data-snap-idx="0" aria-label="প্রোগ্রামভিত্তিক বিস্তারিত সামারি" title="প্রোগ্রামভিত্তিক বিস্তারিত সামারি"></button>
-  <button class="snap-dot" data-snap-idx="1" aria-label="SSC ও HSC ডাটা তুলনা" title="SSC ও HSC ডাটা তুলনা"></button>
-</div>
-
-<button class="view-fab" id="viewFab" aria-label="View by" title="View By">🧭</button>
+<button class="view-fab" id="viewFab" aria-label="View by" title="View By">
+  <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+</button>
 <div class="view-panel" id="viewPanel">
   <div class="tp-label">View By</div>
   <div id="viewList">
     <div class="tp-theme-row" data-view-pick="program">Program Wise</div>
     <div class="tp-theme-row" data-view-pick="branch">Branch Wise</div>
     <div class="tp-theme-row" data-view-pick="branchProgram">Branch Program Wise</div>
+    <div class="tp-theme-row" data-view-pick="mentor">Mentor Wise Summary</div>
+    <div class="tp-theme-row" data-view-pick="mentorBranch">Mentor Branch Wise Summary</div>
   </div>
 </div>
 
@@ -277,13 +277,51 @@
     <div class="tp-color-col"><input type="color" class="tp-color-input" id="tpBg"><span>BG</span></div>
   </div>
   <button class="tp-reset-btn" id="tpReset">↺ Reset Colors</button>
+  <div class="tp-label tp-label-2">Columns</div>
+  <div id="tpColumnList"></div>
 </div>
 
 <script>
-let programRows = null, programTotals = null, programTotalLabel = "মোট আবেদন";
-let branchRows = null, branchTotals = null;
-let branchProgramRows = null, branchProgramTotals = null;
+let DATA = {};
+let programTotalLabel = "মোট আবেদন";
 let currentView = localStorage.getItem("ap26bd_view") || "program";
+
+/* ============ ভিউ সংজ্ঞা: প্রতিটা ভিউয়ের ডাটা-কী, গ্রুপিং ও লেবেল কলাম ============ */
+const VIEW_DEFS = {
+  program: { dataKey:"program", grouped:false, labelField:"program", labelHeader:"Program" },
+  branch: { dataKey:"branch", grouped:false, labelField:"branch", labelHeader:"Branch" },
+  branchProgram: { dataKey:"branchProgram", grouped:true, groupField:"branch", itemField:"program", labelHeader:"Branch / Program" },
+  mentor: { dataKey:"mentor", grouped:false, labelField:"mentor", labelHeader:"Mentor" },
+  mentorBranch: { dataKey:"mentorBranch", grouped:true, groupField:"mentor", itemField:"branch", labelHeader:"Mentor / Branch" }
+};
+const VIEW_LABELS = {
+  program:"Program Wise", branch:"Branch Wise", branchProgram:"Branch Program Wise",
+  mentor:"Mentor Wise Summary", mentorBranch:"Mentor Branch Wise Summary"
+};
+const FIELD_LABELS = { program:"Program", branch:"Branch", mentor:"Mentor" };
+
+function filterFieldsFor(def){ return def.grouped ? [def.groupField, def.itemField] : [def.labelField]; }
+
+const tableState = {};
+Object.keys(VIEW_DEFS).forEach(k => {
+  const def = VIEW_DEFS[k];
+  const filters = {};
+  filterFieldsFor(def).forEach(f => { filters[f] = new Set(); });
+  tableState[k] = { search:"", sortKey:null, sortDir:1, filters };
+});
+let openFilterKey = null;
+
+/* ============ কলাম দেখাও/লুকাও: টেবিলের শেষ ছয়টি স্ট্যাট কলাম — ইউজার থিম প্যানেল থেকে বেছে নিতে পারবে ============ */
+const STAT_COLUMNS = [
+  { key:"sscYes", label:"SSC সংগ্রহ", kind:"stat", palette:"ssc" },
+  { key:"sscNo", label:"SSC মিসিং", kind:"missing" },
+  { key:"sscSyncYes", label:"SSC সিঙ্ক", kind:"stat", palette:"ssc" },
+  { key:"hscYes", label:"HSC সংগ্রহ", kind:"stat", palette:"hsc" },
+  { key:"hscNo", label:"HSC মিসিং", kind:"missing" },
+  { key:"hscSyncYes", label:"HSC সিঙ্ক", kind:"stat", palette:"hsc" }
+];
+let columnVisibility = {};
+STAT_COLUMNS.forEach(c => { columnVisibility[c.key] = true; });
 
 const THEME_PALETTE = {
   1: { ssc:"#1B2A4A", hsc:"#8A6FB0" },
@@ -304,21 +342,6 @@ function getActivePalette(){
   const base = THEME_PALETTE[currentTheme()];
   return { ssc: customColors.primary || base.ssc, hsc: customColors.secondary || base.hsc };
 }
-const PROGRAM_BRAND = {
-  "Medical": ["Unmesh", "OnlineCare"],
-  "Engineering": ["Udvash", "OnlineCare"],
-  "Varsity 'KA'": ["Udvash", "OnlineCare"],
-  "Varsity 'KHA'": ["Udvash", "OnlineCare"]
-};
-function shortName(program){
-  const name = program.replace(" Admission Program", "");
-  const isOnline = name.includes("(Online)");
-  const base = name.replace(" (Online)", "");
-  const brand = PROGRAM_BRAND[base];
-  if(brand) return `${base} (${isOnline ? brand[1] : brand[0]})`;
-  return isOnline ? name.replace("(Online)", "(অনলাইন)") : name;
-}
-
 function showError(msg){
   document.getElementById("errorArea").innerHTML = `<div class="error-box">⚠ ${msg}</div>`;
 }
@@ -342,7 +365,7 @@ async function loadData(){
   }
 }
 
-/* ============ শীটে "Sl" লেখা প্রতিটা টেবিলের হেডার-পজিশন খুঁজে বের করা (Program Wise / Branch Wise / Branch & Program Wise — এই তিনটা টেবিল একই শীটে পরপর থাকে) ============ */
+/* ============ শীটে "Sl" লেখা প্রতিটা টেবিলের হেডার-পজিশন খুঁজে বের করা (Program Wise / Branch Wise / Branch & Program Wise / Mentor Wise / Mentor & Branch Wise — এই পাঁচটা টেবিল একই শীটে পরপর থাকে) ============ */
 function findSlPositions(grid){
   const positions = [];
   for(let r=0; r<grid.length; r++){
@@ -411,37 +434,64 @@ function parseSubTable(grid, slRow, slCol, labelColCount){
   return { rows, totals, totalCol };
 }
 
+function statsOf(r){
+  return { sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
+    hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo };
+}
+
 function parseAndRender(grid){
   const slPositions = findSlPositions(grid);
   if(!slPositions.length){ showError("শীটের হেডার কাঠামো চেনা যায়নি (Sl কলাম পাওয়া যায়নি)।"); return; }
 
   const t1 = parseSubTable(grid, slPositions[0].row, slPositions[0].col, 1);
   if(!t1.rows.length){ showError("কোনো প্রোগ্রামের ডাটা পাওয়া যায়নি।"); return; }
-  programRows = t1.rows.map(r => ({ sl:r.sl, program:r.label1, total:r.total,
-    sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
-    hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo }));
-  programTotals = t1.totals;
+  DATA.program = {
+    rows: t1.rows.map(r => ({ sl:r.sl, program:r.label1, total:r.total, ...statsOf(r) })),
+    totals: t1.totals
+  };
   programTotalLabel = (grid[slPositions[0].row][t1.totalCol] || "মোট আবেদন").toString().trim();
 
-  branchRows = null; branchTotals = null;
+  DATA.branch = null;
   if(slPositions[1]){
     const t2 = parseSubTable(grid, slPositions[1].row, slPositions[1].col, 1);
     if(t2.rows.length){
-      branchRows = t2.rows.map(r => ({ sl:r.sl, branch:r.label1, total:r.total,
-        sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
-        hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo }));
-      branchTotals = t2.totals;
+      DATA.branch = {
+        rows: t2.rows.map(r => ({ sl:r.sl, branch:r.label1, total:r.total, ...statsOf(r) })),
+        totals: t2.totals
+      };
     }
   }
 
-  branchProgramRows = null; branchProgramTotals = null;
+  DATA.branchProgram = null;
   if(slPositions[2]){
     const t3 = parseSubTable(grid, slPositions[2].row, slPositions[2].col, 2);
     if(t3.rows.length){
-      branchProgramRows = t3.rows.map(r => ({ sl:r.sl, branch:r.label1, program:r.label2, total:r.total,
-        sscYes:r.sscYes, sscNo:r.sscNo, sscSyncYes:r.sscSyncYes, sscSyncNo:r.sscSyncNo,
-        hscYes:r.hscYes, hscNo:r.hscNo, hscSyncYes:r.hscSyncYes, hscSyncNo:r.hscSyncNo }));
-      branchProgramTotals = t3.totals;
+      DATA.branchProgram = {
+        rows: t3.rows.map(r => ({ sl:r.sl, branch:r.label1, program:r.label2, total:r.total, ...statsOf(r) })),
+        totals: t3.totals
+      };
+    }
+  }
+
+  DATA.mentor = null;
+  if(slPositions[3]){
+    const t4 = parseSubTable(grid, slPositions[3].row, slPositions[3].col, 1);
+    if(t4.rows.length){
+      DATA.mentor = {
+        rows: t4.rows.map(r => ({ sl:r.sl, mentor:r.label1, total:r.total, ...statsOf(r) })),
+        totals: t4.totals
+      };
+    }
+  }
+
+  DATA.mentorBranch = null;
+  if(slPositions[4]){
+    const t5 = parseSubTable(grid, slPositions[4].row, slPositions[4].col, 2);
+    if(t5.rows.length){
+      DATA.mentorBranch = {
+        rows: t5.rows.map(r => ({ sl:r.sl, mentor:r.label1, branch:r.label2, total:r.total, ...statsOf(r) })),
+        totals: t5.totals
+      };
     }
   }
 
@@ -449,8 +499,8 @@ function parseAndRender(grid){
 }
 
 function renderAll(){
-  if(!programRows || !programTotals) return;
-  renderKPIs(programTotals, programTotalLabel || "মোট আবেদন");
+  if(!DATA.program) return;
+  renderKPIs(DATA.program.totals, programTotalLabel || "মোট আবেদন");
   renderDetailSection();
 }
 
@@ -458,22 +508,36 @@ function eyebrowHtml(label){
   const m = /^(.*?)\s*(\([^)]*\)\s*)$/.exec(label);
   return m ? `${m[1]}<br>${m[2].trim()}` : label;
 }
+/* KPI কার্ডের ধরন অনুযায়ী নির্দিষ্ট রঙ — সংগ্রহ:নীল, মিসিং:লাল, সিঙ্ক্রোনাইজড:কালো (থিম যা-ই হোক, এই তিনটা সবসময় একই অর্থবহ রঙে থাকবে) */
+const KPI_COLLECT_COLOR = "#2563EB";
+const KPI_SYNC_COLOR = "#000000";
+function kpiColorStyle(color){
+  if(!color) return "";
+  /* থিম ৪-এর গ্র্যাডিয়েন্ট টেক্সট-ক্লিপ রিসেট করে নির্দিষ্ট রঙ বসানো */
+  return ` style="color:${color};background:none;-webkit-background-clip:initial;background-clip:initial;"`;
+}
 function renderKPIs(t, totalLabel){
   const sscPct = pct(t.sscYes, t.total);
   const hscPct = pct(t.hscYes, t.total);
+  const sscMissPct = pct(t.sscNo, t.total);
+  const hscMissPct = pct(t.hscNo, t.total);
   const sscSyncPct = pct(t.sscSyncYes, t.total);
   const hscSyncPct = pct(t.hscSyncYes, t.total);
-  const countPct = (count, p) => `${count.toLocaleString("en-US")} (${p}%)`;
   const kpis = [
-    {label: totalLabel, value: t.total.toLocaleString("en-US")},
-    {label:"SSC ডাটা সংগ্রহ", value: countPct(t.sscYes, sscPct)},
-    {label:"HSC ডাটা সংগ্রহ", value: countPct(t.hscYes, hscPct)},
-    {label:"SSC সিঙ্ক্রোনাইজড", value: countPct(t.sscSyncYes, sscSyncPct)},
-    {label:"HSC সিঙ্ক্রোনাইজড", value: countPct(t.hscSyncYes, hscSyncPct)}
+    {label: totalLabel, count: t.total.toLocaleString("en-US")},
+    {label:"SSC ডাটা সংগ্রহ", count: t.sscYes.toLocaleString("en-US"), pct: sscPct, color: KPI_COLLECT_COLOR},
+    {label:"SSC মিসিং", count: t.sscNo.toLocaleString("en-US"), pct: sscMissPct, color: MISSING_COLOR},
+    {label:"HSC ডাটা সংগ্রহ", count: t.hscYes.toLocaleString("en-US"), pct: hscPct, color: KPI_COLLECT_COLOR},
+    {label:"HSC মিসিং", count: t.hscNo.toLocaleString("en-US"), pct: hscMissPct, color: MISSING_COLOR},
+    {label:"SSC সিঙ্ক্রোনাইজড", count: t.sscSyncYes.toLocaleString("en-US"), pct: sscSyncPct, color: KPI_SYNC_COLOR},
+    {label:"HSC সিঙ্ক্রোনাইজড", count: t.hscSyncYes.toLocaleString("en-US"), pct: hscSyncPct, color: KPI_SYNC_COLOR}
   ];
-  document.getElementById("kpiRow").innerHTML = kpis.map(k =>
-    `<div class="kpi"><div class="eyebrow">${eyebrowHtml(k.label)}</div><div class="num">${k.value}</div></div>`
-  ).join("");
+  document.getElementById("kpiRow").innerHTML = kpis.map(k => {
+    const valueHtml = k.pct === undefined
+      ? k.count
+      : `<span class="kpi-count">${k.count}</span><span class="kpi-pct">(${k.pct}%)</span>`;
+    return `<div class="kpi"><div class="eyebrow">${eyebrowHtml(k.label)}</div><div class="num"${kpiColorStyle(k.color)}>${valueHtml}</div></div>`;
+  }).join("");
 }
 
 function statCellHtml(count, pctVal, color){
@@ -483,34 +547,159 @@ function statCellHtml(count, pctVal, color){
     </td>`;
 }
 
-function tableCardHtml(rows, totals, p, labelHeader, labelKey, scrollable){
+/* SSC/HSC মিসিং (এখনো বোর্ড ডাটা সংগ্রহ হয়নি) — টিমমেম্বারদের প্রায়োরিটি কাজ, তাই লাল ফন্টে হাইলাইট */
+const MISSING_COLOR = "#DC2626";
+function missingCellHtml(count, pctVal){
+  return `<td>
+      <div class="stat-count" style="color:${MISSING_COLOR}">${count.toLocaleString("en-US")}</div>
+      <div class="stat-pct" style="color:${MISSING_COLOR};background:${MISSING_COLOR}1F">${pctVal}%</div>
+    </td>`;
+}
+
+/* কলাম-ভিজিবিলিটি অনুযায়ী প্রতিটা রো/হেডারে দেখানোর জন্য নির্বাচিত স্ট্যাট কলামগুলো বের করা */
+function visibleStatColumns(){
+  return STAT_COLUMNS.filter(c => columnVisibility[c.key]);
+}
+function renderStatCell(col, r, p){
+  const pctVal = pct(r[col.key], r.total);
+  if(col.kind === "missing") return missingCellHtml(r[col.key], pctVal);
+  return statCellHtml(r[col.key], pctVal, col.palette === "ssc" ? p.ssc : p.hsc);
+}
+function renderStatHeader(col, state){
+  const style = col.kind === "missing" ? ` style="color:${MISSING_COLOR}"` : "";
+  return `<th data-sort-key="${col.key}"${style}>${col.label}${sortArrow(state,col.key)}</th>`;
+}
+
+function sortArrow(state, key){
+  if(state.sortKey !== key) return "";
+  return `<span class="sort-arrow">${state.sortDir === 1 ? "▲" : "▼"}</span>`;
+}
+
+/* ============ সার্চ/ফিল্টার/সর্ট: জেনেরিক হেল্পার (সব ভিউয়ের জন্য কমন) ============ */
+function computeTotals(rows){
+  return rows.reduce((a,r) => ({
+    total:a.total+r.total, sscYes:a.sscYes+r.sscYes, sscNo:a.sscNo+r.sscNo,
+    sscSyncYes:a.sscSyncYes+r.sscSyncYes, sscSyncNo:a.sscSyncNo+r.sscSyncNo,
+    hscYes:a.hscYes+r.hscYes, hscNo:a.hscNo+r.hscNo,
+    hscSyncYes:a.hscSyncYes+r.hscSyncYes, hscSyncNo:a.hscSyncNo+r.hscSyncNo
+  }), {total:0,sscYes:0,sscNo:0,sscSyncYes:0,sscSyncNo:0,hscYes:0,hscNo:0,hscSyncYes:0,hscSyncNo:0});
+}
+
+function sortValue(row, key, def){
+  if(key === "label") return row[def.labelField];
+  if(key === "item") return row[def.itemField];
+  return row[key];
+}
+
+function compareRows(a, b, key, def, dir){
+  const va = sortValue(a, key, def), vb = sortValue(b, key, def);
+  if(typeof va === "string") return va.localeCompare(vb, "bn") * dir;
+  return (va - vb) * dir;
+}
+
+function applyGroupSort(rows, def, sortKey, sortDir){
+  if(!sortKey) return rows;
+  const order = [], groups = {};
+  rows.forEach(r => {
+    const g = r[def.groupField];
+    if(!groups[g]){ groups[g] = []; order.push(g); }
+    groups[g].push(r);
+  });
+  order.forEach(g => groups[g].sort((a,b) => compareRows(a,b,sortKey,def,sortDir)));
+  return order.flatMap(g => groups[g]);
+}
+
+function uniqueValues(rows, field){
+  return Array.from(new Set(rows.map(r => r[field]).filter(Boolean))).sort((a,b) => a.localeCompare(b, "bn"));
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function getProcessedRows(viewKey){
+  const def = VIEW_DEFS[viewKey];
+  const data = DATA[def.dataKey];
+  const state = tableState[viewKey];
+  const fields = filterFieldsFor(def);
+  const s = state.search.trim().toLowerCase();
+
+  let rows = data.rows.filter(r => {
+    if(s && !fields.some(f => (r[f] || "").toString().toLowerCase().includes(s))) return false;
+    return fields.every(f => {
+      const set = state.filters[f];
+      return !set.size || set.has(r[f]);
+    });
+  });
+
+  rows = def.grouped
+    ? applyGroupSort(rows, def, state.sortKey, state.sortDir)
+    : (state.sortKey ? rows.slice().sort((a,b) => compareRows(a,b,state.sortKey,def,state.sortDir)) : rows);
+
+  const totals = rows.length ? computeTotals(rows) : {total:0,sscYes:0,sscNo:0,sscSyncYes:0,sscSyncNo:0,hscYes:0,hscNo:0,hscSyncYes:0,hscSyncNo:0};
+  return { rows, totals };
+}
+
+/* ============ প্রতিটা টেবিলের উপরের টুলবার: সার্চ + প্রতিটা ফিল্টার — সবগুলো সমান-প্রস্থের কলামে, একলাইনে ============ */
+function toolbarHtml(viewKey, def, allRows){
+  const state = tableState[viewKey];
+  const fields = filterFieldsFor(def);
+  const filterCols = fields.map(f => {
+    const opts = uniqueValues(allRows, f);
+    const selected = state.filters[f];
+    const label = FIELD_LABELS[f] || f;
+    const key = `${viewKey}:${f}`;
+    const isOpen = openFilterKey === key;
+    const badge = selected.size ? `<span class="tbl-filter-badge">${selected.size}</span>` : "";
+    const items = opts.map(v => `<label class="tbl-filter-item"><input type="checkbox" data-filter-field="${f}" value="${escapeHtml(v)}" ${selected.has(v) ? "checked" : ""}> ${escapeHtml(v)}</label>`).join("");
+    return `<div class="tbl-toolbar-divider"></div>
+    <div class="tbl-toolbar-col">
+      <div class="tbl-filter-group">
+        <button type="button" class="tbl-filter-btn" data-filter-toggle="${key}"><span>${label} ${badge}</span><span class="tbl-caret">▾</span></button>
+        <div class="tbl-filter-dropdown${isOpen ? " open" : ""}" data-filter-dropdown="${key}">
+          <div class="tbl-filter-actions"><button type="button" data-filter-clear="${f}">সব ক্লিয়ার</button></div>
+          ${items}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `<div class="tbl-toolbar">
+    <div class="tbl-toolbar-col">
+      <div class="tbl-search-wrap">
+        <input type="text" class="tbl-search" data-search-view="${viewKey}" placeholder="খুঁজুন..." value="${escapeHtml(state.search)}">
+      </div>
+    </div>
+    ${filterCols}
+  </div>`;
+}
+
+function tableCardHtml(viewKey, rows, totals, p){
+  const def = VIEW_DEFS[viewKey];
+  const state = tableState[viewKey];
+  const cols = visibleStatColumns();
+  const colCount = 3 + cols.length;
   const rowHtml = (label, r, isTotal) => {
-    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
-    const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
     return `<tr${isTotal ? ' class="total-row"' : ''}>
       <td class="left">${isTotal ? '' : r.sl}</td>
       <td class="left">${label}</td>
       <td>${r.total.toLocaleString("en-US")}</td>
-      ${statCellHtml(r.sscYes, sscP, p.ssc)}
-      ${statCellHtml(r.sscSyncYes, sscSyncP, p.ssc)}
-      ${statCellHtml(r.hscYes, hscP, p.hsc)}
-      ${statCellHtml(r.hscSyncYes, hscSyncP, p.hsc)}
+      ${cols.map(col => renderStatCell(col, r, p)).join("")}
     </tr>`;
   };
-  let bodyHtml = rows.map(r => rowHtml(r[labelKey], r, false)).join("");
-  bodyHtml += rowHtml("সর্বমোট", totals, true);
-  return `<div class="table-card${scrollable ? ' scroll-body' : ''}">
+  let bodyHtml = rows.length
+    ? rows.map(r => rowHtml(r[def.labelField], r, false)).join("")
+    : `<tr class="tbl-empty-row"><td colspan="${colCount}">কোনো ডাটা পাওয়া যায়নি।</td></tr>`;
+  if(rows.length) bodyHtml += rowHtml("সর্বমোট", totals, true);
+  return `<div class="table-card">
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
             <th class="left">Sl</th>
-            <th class="left">${labelHeader}</th>
-            <th>মোট ডাটা</th>
-            <th>SSC সংগ্রহ</th>
-            <th>SSC সিঙ্ক</th>
-            <th>HSC সংগ্রহ</th>
-            <th>HSC সিঙ্ক</th>
+            <th class="left" data-sort-key="label">${def.labelHeader}${sortArrow(state,'label')}</th>
+            <th data-sort-key="total">মোট ডাটা${sortArrow(state,'total')}</th>
+            ${cols.map(col => renderStatHeader(col, state)).join("")}
           </tr>
         </thead>
         <tbody>${bodyHtml}</tbody>
@@ -519,58 +708,54 @@ function tableCardHtml(rows, totals, p, labelHeader, labelKey, scrollable){
   </div>`;
 }
 
-/* Branch & Program Wise — শাখা অনুযায়ী গ্রুপ করে দেখায় (প্রতিটা শাখার নিচে শুধু যে প্রোগ্রামগুলোর ডাটা আছে সেগুলোর রো) */
-function groupedTableHtml(rows, totals, p){
+/* Branch & Program Wise / Mentor & Branch Wise — প্রথম লেবেল অনুযায়ী গ্রুপ করে দেখায় (প্রতিটা গ্রুপের নিচে শুধু যেগুলোর ডাটা আছে সেগুলোর রো) */
+function groupedTableHtml(viewKey, rows, totals, p){
+  const def = VIEW_DEFS[viewKey];
+  const state = tableState[viewKey];
+  const cols = visibleStatColumns();
+  const colCount = 3 + cols.length;
   const rowHtml = (r) => {
-    const sscP = pct(r.sscYes, r.total), hscP = pct(r.hscYes, r.total);
-    const sscSyncP = pct(r.sscSyncYes, r.total), hscSyncP = pct(r.hscSyncYes, r.total);
     return `<tr>
       <td class="left"></td>
-      <td class="left indent">${r.program}</td>
+      <td class="left indent">${r[def.itemField]}</td>
       <td>${r.total.toLocaleString("en-US")}</td>
-      ${statCellHtml(r.sscYes, sscP, p.ssc)}
-      ${statCellHtml(r.sscSyncYes, sscSyncP, p.ssc)}
-      ${statCellHtml(r.hscYes, hscP, p.hsc)}
-      ${statCellHtml(r.hscSyncYes, hscSyncP, p.hsc)}
+      ${cols.map(col => renderStatCell(col, r, p)).join("")}
     </tr>`;
   };
 
-  const branchTotalMap = {};
-  rows.forEach(r => { branchTotalMap[r.branch] = (branchTotalMap[r.branch] || 0) + r.total; });
+  const groupTotalMap = {};
+  rows.forEach(r => { groupTotalMap[r[def.groupField]] = (groupTotalMap[r[def.groupField]] || 0) + r.total; });
 
   let bodyHtml = "";
-  let curBranch = null;
-  rows.forEach(r => {
-    if(r.branch !== curBranch){
-      curBranch = r.branch;
-      bodyHtml += `<tr class="group-row"><td colspan="7" class="left">${curBranch}<span class="group-total">মোট ${branchTotalMap[curBranch].toLocaleString("en-US")}</span></td></tr>`;
-    }
-    bodyHtml += rowHtml(r);
-  });
+  if(!rows.length){
+    bodyHtml = `<tr class="tbl-empty-row"><td colspan="${colCount}">কোনো ডাটা পাওয়া যায়নি।</td></tr>`;
+  } else {
+    let curGroup = null;
+    rows.forEach(r => {
+      const g = r[def.groupField];
+      if(g !== curGroup){
+        curGroup = g;
+        bodyHtml += `<tr class="group-row"><td colspan="${colCount}" class="left">${curGroup}<span class="group-total">মোট ${groupTotalMap[curGroup].toLocaleString("en-US")}</span></td></tr>`;
+      }
+      bodyHtml += rowHtml(r);
+    });
 
-  const sscP = pct(totals.sscYes, totals.total), hscP = pct(totals.hscYes, totals.total);
-  const sscSyncP = pct(totals.sscSyncYes, totals.total), hscSyncP = pct(totals.hscSyncYes, totals.total);
-  bodyHtml += `<tr class="total-row">
-    <td class="left" colspan="2">সর্বমোট</td>
-    <td>${totals.total.toLocaleString("en-US")}</td>
-    ${statCellHtml(totals.sscYes, sscP, p.ssc)}
-    ${statCellHtml(totals.sscSyncYes, sscSyncP, p.ssc)}
-    ${statCellHtml(totals.hscYes, hscP, p.hsc)}
-    ${statCellHtml(totals.hscSyncYes, hscSyncP, p.hsc)}
-  </tr>`;
+    bodyHtml += `<tr class="total-row">
+      <td class="left" colspan="2">সর্বমোট</td>
+      <td>${totals.total.toLocaleString("en-US")}</td>
+      ${cols.map(col => renderStatCell(col, totals, p)).join("")}
+    </tr>`;
+  }
 
-  return `<div class="table-card scroll-body">
+  return `<div class="table-card">
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
             <th class="left"></th>
-            <th class="left">Branch / Program</th>
-            <th>মোট ডাটা</th>
-            <th>SSC সংগ্রহ</th>
-            <th>SSC সিঙ্ক</th>
-            <th>HSC সংগ্রহ</th>
-            <th>HSC সিঙ্ক</th>
+            <th class="left" data-sort-key="item">${def.labelHeader}${sortArrow(state,'item')}</th>
+            <th data-sort-key="total">মোট ডাটা${sortArrow(state,'total')}</th>
+            ${cols.map(col => renderStatHeader(col, state)).join("")}
           </tr>
         </thead>
         <tbody>${bodyHtml}</tbody>
@@ -579,53 +764,31 @@ function groupedTableHtml(rows, totals, p){
   </div>`;
 }
 
-function raceBarHtml(rows, p){
-  const barRow = (label, count, total, color) => {
-    const pctVal = pct(count, total);
-    return `<div class="race-row"><span class="race-label">${label}</span><div class="race-track"><i style="width:${pctVal}%;background:${color}"></i></div><span class="race-pct">${count.toLocaleString("en-US")} (${pctVal}%)</span></div>`;
-  };
-  const groupHtml = (r) => `<div class="race-group">
-      <div class="race-title"><span>${shortName(r.program)}</span><span class="race-total">মোট ${r.total.toLocaleString("en-US")}</span></div>
-      ${barRow("SSC এন্ট্রি", r.sscYes, r.total, p.ssc)}
-      ${barRow("SSC সিঙ্ক", r.sscSyncYes, r.total, p.ssc)}
-      ${barRow("HSC এন্ট্রি", r.hscYes, r.total, p.hsc)}
-      ${barRow("HSC সিঙ্ক", r.hscSyncYes, r.total, p.hsc)}
-    </div>`;
-
-  const offline = rows.filter(r => !r.program.includes("(Online)"));
-  const online = rows.filter(r => r.program.includes("(Online)"));
-  const colHtml = (label, list) => `<div class="race-col"><div class="race-col-head">${label}</div>${list.map(groupHtml).join("")}</div>`;
-
-  return `<div class="card"><div class="race-cols">${colHtml("Udvash / Unmesh", offline)}${colHtml("OnlineCare", online)}</div></div>`;
-}
-
 function renderDetailSection(){
   const p = getActivePalette();
-  const sectionRaceEl = document.getElementById("sectionRace");
-  const snapDotsEl = document.getElementById("snapDots");
   const tableWrap = document.querySelector("#sectionTable .wrap");
+  const def = VIEW_DEFS[currentView];
+  const data = DATA[def.dataKey];
 
-  if(currentView === "program"){
-    sectionRaceEl.style.display = "";
-    snapDotsEl.style.display = "";
-    tableWrap.className = "wrap";
-    tableWrap.innerHTML = tableCardHtml(programRows, programTotals, p, "Program", "program", false);
-    document.querySelector("#sectionRace .wrap").innerHTML = raceBarHtml(programRows, p);
-  } else if(currentView === "branch"){
-    sectionRaceEl.style.display = "none";
-    snapDotsEl.style.display = "none";
-    tableWrap.className = "wrap fill";
-    tableWrap.innerHTML = branchRows
-      ? tableCardHtml(branchRows, branchTotals, p, "Branch", "branch", true)
-      : `<div class="error-box">⚠ Branch Wise ডাটা শীটে পাওয়া যায়নি।</div>`;
-  } else if(currentView === "branchProgram"){
-    sectionRaceEl.style.display = "none";
-    snapDotsEl.style.display = "none";
-    tableWrap.className = "wrap fill";
-    tableWrap.innerHTML = branchProgramRows
-      ? groupedTableHtml(branchProgramRows, branchProgramTotals, p)
-      : `<div class="error-box">⚠ Branch Program Wise ডাটা শীটে পাওয়া যায়নি।</div>`;
+  if(!data){
+    tableWrap.innerHTML = `<div class="error-box">⚠ ${VIEW_LABELS[currentView]} ডাটা শীটে পাওয়া যায়নি।</div>`;
+    return;
   }
+
+  const processed = getProcessedRows(currentView);
+  const toolbar = toolbarHtml(currentView, def, data.rows);
+  const tableHtml = def.grouped
+    ? groupedTableHtml(currentView, processed.rows, processed.totals, p)
+    : tableCardHtml(currentView, processed.rows, processed.totals, p);
+
+  tableWrap.innerHTML = toolbar + tableHtml;
+  updateToolbarHeight();
+}
+
+/* টুলবার এক লাইনে থাকুক বা রেসপন্সিভভাবে দুই লাইনে wrap করুক — তার প্রকৃত উচ্চতা মেপে টেবিল-হেডারের sticky top অফসেট সেট করা, যাতে হেডার সবসময় টুলবারের ঠিক নিচেই আটকে থাকে */
+function updateToolbarHeight(){
+  const toolbar = document.querySelector(".tbl-toolbar");
+  if(toolbar) document.documentElement.style.setProperty("--toolbar-h", toolbar.offsetHeight + "px");
 }
 
 /* ============ থিম + প্যালেট কাস্টমাইজার (ফ্লোটিং প্যানেল) ============ */
@@ -635,10 +798,28 @@ const tpThemeList = document.getElementById("tpThemeList");
 const tpPrimary = document.getElementById("tpPrimary");
 const tpSecondary = document.getElementById("tpSecondary");
 const tpBg = document.getElementById("tpBg");
+const tpColumnList = document.getElementById("tpColumnList");
 
 tpThemeList.innerHTML = THEME_ORDER.map(n =>
   `<div class="tp-theme-row" data-theme-pick="${n}"><span class="tp-swatch" style="background:${THEME_PALETTE[n].ssc}"></span>${THEME_NAMES[n]}</div>`
 ).join("");
+
+/* ============ কলাম দেখাও/লুকাও (থিম প্যানেলের নিচে) ============ */
+function renderColumnList(){
+  tpColumnList.innerHTML = STAT_COLUMNS.map(c =>
+    `<label class="tbl-filter-item"><input type="checkbox" data-column-toggle="${c.key}" ${columnVisibility[c.key] ? "checked" : ""}> ${c.label}</label>`
+  ).join("");
+}
+renderColumnList();
+
+document.addEventListener("change", (e) => {
+  if(e.target.matches("[data-column-toggle]")){
+    const key = e.target.getAttribute("data-column-toggle");
+    columnVisibility[key] = e.target.checked;
+    localStorage.setItem("ap26bd_columns", JSON.stringify(columnVisibility));
+    renderDetailSection();
+  }
+});
 
 function refreshThemeRowHighlight(){
   const n = currentTheme();
@@ -722,7 +903,7 @@ function setView(v){
   currentView = v;
   localStorage.setItem("ap26bd_view", v);
   refreshViewRowHighlight();
-  scrollViewport.scrollTop = 0;
+  window.scrollTo(0, 0);
   renderAll();
 }
 
@@ -741,28 +922,58 @@ document.addEventListener("click", (e) => {
   }
 });
 
-/* ============ এক-উইন্ডোতে-এক-সেকশন স্ক্রল-স্ন্যাপ ডট ইন্ডিকেটর ============ */
-const scrollViewport = document.getElementById("scrollViewport");
-const snapSections = Array.from(document.querySelectorAll(".snap-section"));
-const snapDots = Array.from(document.querySelectorAll(".snap-dot"));
-
-snapDots.forEach((dot, idx) => {
-  dot.addEventListener("click", () => {
-    snapSections[idx].scrollIntoView({behavior:"smooth", block:"start"});
-  });
+/* ============ টেবিল টুলবার: সার্চ, ফিল্টার (মাল্টি-সিলেক্ট), কলাম সর্ট — সব ইভেন্ট ডেলিগেশনে ============ */
+document.addEventListener("input", (e) => {
+  if(e.target.matches(".tbl-search")){
+    const viewKey = e.target.getAttribute("data-search-view");
+    const cursorPos = e.target.selectionStart;
+    tableState[viewKey].search = e.target.value;
+    renderDetailSection();
+    const newInput = document.querySelector(`.tbl-search[data-search-view="${viewKey}"]`);
+    if(newInput){ newInput.focus(); newInput.setSelectionRange(cursorPos, cursorPos); }
+  }
 });
 
-const snapObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if(entry.isIntersecting){
-      const idx = snapSections.indexOf(entry.target);
-      snapDots.forEach((d,i) => d.classList.toggle("active", i === idx));
-    }
-  });
-}, { root: scrollViewport, threshold: 0.5 });
+document.addEventListener("change", (e) => {
+  if(e.target.matches("[data-filter-field]")){
+    const field = e.target.getAttribute("data-filter-field");
+    const set = tableState[currentView].filters[field];
+    if(e.target.checked) set.add(e.target.value); else set.delete(e.target.value);
+    renderDetailSection();
+  }
+});
 
-snapSections.forEach(sec => snapObserver.observe(sec));
-snapDots[0].classList.add("active");
+document.addEventListener("click", (e) => {
+  const toggleBtn = e.target.closest("[data-filter-toggle]");
+  if(toggleBtn){
+    e.stopPropagation();
+    const key = toggleBtn.getAttribute("data-filter-toggle");
+    const dropdown = document.querySelector(`[data-filter-dropdown="${key}"]`);
+    const willOpen = !dropdown.classList.contains("open");
+    document.querySelectorAll(".tbl-filter-dropdown.open").forEach(d => d.classList.remove("open"));
+    if(willOpen){ dropdown.classList.add("open"); openFilterKey = key; } else { openFilterKey = null; }
+    return;
+  }
+  const clearBtn = e.target.closest("[data-filter-clear]");
+  if(clearBtn){
+    e.stopPropagation();
+    tableState[currentView].filters[clearBtn.getAttribute("data-filter-clear")].clear();
+    renderDetailSection();
+    return;
+  }
+  const sortTh = e.target.closest("[data-sort-key]");
+  if(sortTh){
+    const key = sortTh.getAttribute("data-sort-key");
+    const state = tableState[currentView];
+    if(state.sortKey === key) state.sortDir *= -1; else { state.sortKey = key; state.sortDir = 1; }
+    renderDetailSection();
+    return;
+  }
+  if(!e.target.closest(".tbl-filter-group")){
+    document.querySelectorAll(".tbl-filter-dropdown.open").forEach(d => d.classList.remove("open"));
+    openFilterKey = null;
+  }
+});
 
 const savedTheme = localStorage.getItem("ap26bd_theme_preview") || "2";
 document.body.setAttribute("data-theme", savedTheme);
@@ -770,13 +981,24 @@ try{
   const savedColors = JSON.parse(localStorage.getItem("ap26bd_custom_colors") || "null");
   if(savedColors) customColors = savedColors;
 }catch(e){}
+try{
+  const savedColumns = JSON.parse(localStorage.getItem("ap26bd_columns") || "null");
+  if(savedColumns) Object.assign(columnVisibility, savedColumns);
+}catch(e){}
 if(customColors.bg) document.body.style.background = customColors.bg;
 refreshThemeRowHighlight();
 refreshColorInputs();
 refreshViewRowHighlight();
+renderColumnList();
 
 loadData();
 setInterval(loadData, CONFIG.REFRESH_MINUTES * 60 * 1000);
+
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(updateToolbarHeight, 150);
+});
 </script>
 
 </body>
